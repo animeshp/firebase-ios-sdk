@@ -47,5 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
 // Returns the in-app message being displayed. Overridden by message type subclasses.
 - (nullable FIRInAppMessagingDisplayMessage *)inAppMessage;
 
+// Call this when end user wants to passback text entered in textfield
+- (NSString*)passbackCustomText:(NSString*)text;
+
 @end
 NS_ASSUME_NONNULL_END
