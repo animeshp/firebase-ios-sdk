@@ -247,7 +247,11 @@ fi
 # If there are changes to the Firestore project, ensure they're ordered
 # correctly to minimize conflicts.
 if ! git diff --quiet "${START_SHA}" -- Firestore; then
-  "${top_dir}/scripts/sync_project.rb"
+  sync_project_cmd=("${top_dir}/scripts/sync_project.rb")
+  if [[ "${TEST_ONLY}" == true ]]; then
+    sync_project_cmd+=(--test-only)
+  fi
+  "${sync_project_cmd[@]}"
   if ! git diff --quiet; then
     maybe_commit "sync_project.rb generated changes"
   fi
@@ -261,4 +265,4 @@ fi
 "${top_dir}/scripts/check_test_inclusion.py"
 
 # Google C++ style
-"${top_dir}/scripts/lint.sh" "${START_SHA}"
+"${top_dir}/scripts/check_lint.py" "${START_SHA}"

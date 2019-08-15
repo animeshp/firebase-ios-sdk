@@ -27,6 +27,7 @@
 
 #include "Firestore/core/test/firebase/firestore/testutil/equals_tester.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "Firestore/core/test/firebase/firestore/testutil/time_testing.h"
 #include "absl/base/casts.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -38,6 +39,7 @@ namespace model {
 using Type = FieldValue::Type;
 
 using absl::nullopt;
+using nanopb::ByteString;
 using testing::Not;
 using testutil::Array;
 using testutil::BlobValue;
@@ -45,19 +47,14 @@ using testutil::DbId;
 using testutil::Field;
 using testutil::Key;
 using testutil::Map;
+using testutil::time_point;
 using testutil::Value;
 using testutil::WrapObject;
 
-using Clock = std::chrono::system_clock;
-using TimePoint = std::chrono::time_point<Clock>;
 using Sec = std::chrono::seconds;
 using Ms = std::chrono::milliseconds;
 
 namespace {
-
-const uint8_t* Bytes(const char* value) {
-  return reinterpret_cast<const uint8_t*>(value);
-}
 
 uint64_t ToBits(double value) {
   return absl::bit_cast<uint64_t>(value);
@@ -88,6 +85,20 @@ TEST(FieldValueTest, ExtractsFields) {
   EXPECT_EQ(nullopt, value.Get(Field("foo.a.b")));
   EXPECT_EQ(nullopt, value.Get(Field("bar")));
   EXPECT_EQ(nullopt, value.Get(Field("bar.a")));
+}
+
+TEST(FieldValueTest, ExtractsFieldMask) {
+  ObjectValue value =
+      WrapObject("a", "b", "map",
+                 Map("a", 1, "b", true, "c", "string", "nested", Map("d", "e")),
+                 "emptymap", Map());
+
+  FieldMask expectedMask =
+      FieldMask({Field("a"), Field("map.a"), Field("map.b"), Field("map.c"),
+                 Field("map.nested.d"), Field("emptymap")});
+  FieldMask actualMask = value.ToFieldMask();
+
+  EXPECT_EQ(expectedMask, actualMask);
 }
 
 TEST(FieldValueTest, OverwritesExistingFields) {
@@ -200,37 +211,20 @@ TEST(FieldValueTest, DeletesNestedKeys) {
 extern time_t timegm(struct tm*);
 #endif
 
-/**
- * Makes a TimePoint from the given date components, given in UTC.
- */
-static TimePoint MakeTimePoint(
-    int year, int month, int day, int hour, int minute, int second) {
-  struct std::tm tm {};
-  tm.tm_year = year - 1900;  // counts from 1900
-  tm.tm_mon = month - 1;     // counts from 0
-  tm.tm_mday = day;          // counts from 1
-  tm.tm_hour = hour;
-  tm.tm_min = minute;
-  tm.tm_sec = second;
-
-  // std::mktime produces a time value in local time, and conversion to GMT is
-  // not defined. timegm is nonstandard but widespread enough for our purposes.
-  time_t t = timegm(&tm);
-  return Clock::from_time_t(t);
-}
-
-static TimePoint kDate1 = MakeTimePoint(2016, 5, 20, 10, 20, 0);
+static time_point kDate1 = testutil::MakeTimePoint(2016, 5, 20, 10, 20, 0);
 static Timestamp kTimestamp1{1463739600, 0};
 
-static TimePoint kDate2 = MakeTimePoint(2016, 10, 21, 15, 32, 0);
+static time_point kDate2 = testutil::MakeTimePoint(2016, 10, 21, 15, 32, 0);
 static Timestamp kTimestamp2{1477063920, 0};
 
 TEST(FieldValueTest, Equality) {
+  // Avoid statically dividing by zero; MSVC considers this an error.
+  double zero = 0.0;
   testutil::EqualsTester<FieldValue>()
       .AddEqualityGroup(FieldValue::Null(), Value(nullptr))
       .AddEqualityGroup(FieldValue::False(), Value(false))
       .AddEqualityGroup(FieldValue::True(), Value(true))
-      .AddEqualityGroup(Value(0.0 / 0.0), Value(ToDouble(kCanonicalNanBits)),
+      .AddEqualityGroup(Value(0.0 / zero), Value(ToDouble(kCanonicalNanBits)),
                         Value(ToDouble(kAlternateNanBits)),
                         Value(std::nan("1")), Value(std::nan("2")))
       // -0.0 and 0.0 compareTo the same but are not equal.
@@ -262,9 +256,9 @@ TEST(FieldValueTest, Equality) {
       .AddEqualityGroup(FieldValue::FromReference(DbId(), Key("coll/doc1")),
                         FieldValue::FromReference(DbId(), Key("coll/doc1")))
       .AddEqualityGroup(
-          FieldValue::FromReference(DbId("project", "bar"), Key("coll/doc2")))
+          FieldValue::FromReference(DbId("project/bar"), Key("coll/doc2")))
       .AddEqualityGroup(
-          FieldValue::FromReference(DbId("project", "baz"), Key("coll/doc2")))
+          FieldValue::FromReference(DbId("project/baz"), Key("coll/doc2")))
       .AddEqualityGroup(Array("foo", "bar"), Array("foo", "bar"))
       .AddEqualityGroup(Array("foo", "bar", "baz"))
       .AddEqualityGroup(Array("foo"))
@@ -352,8 +346,7 @@ TEST(FieldValue, ToString) {
   EXPECT_EQ("foo", FieldValue::FromString("foo").ToString());
 
   // Bytes escaped as hex
-  const char* hi = "HI";
-  auto blob = FieldValue::FromBlob(reinterpret_cast<const uint8_t*>(hi), 2);
+  auto blob = FieldValue::FromBlob(ByteString("HI"));
   EXPECT_EQ("<4849>", blob.ToString());
 
   auto ref = FieldValue::FromReference(DatabaseId("p", "d"), Key("foo/bar"));
@@ -474,8 +467,8 @@ TEST(FieldValue, StringType) {
 }
 
 TEST(FieldValue, BlobType) {
-  const FieldValue a = FieldValue::FromBlob(Bytes("abc"), 4);
-  const FieldValue b = FieldValue::FromBlob(Bytes("def"), 4);
+  const FieldValue a = FieldValue::FromBlob(ByteString("abc"));
+  const FieldValue b = FieldValue::FromBlob(ByteString("def"));
   EXPECT_EQ(Type::Blob, a.type());
   EXPECT_EQ(Type::Blob, b.type());
   EXPECT_TRUE(a < b);
@@ -622,12 +615,12 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
+  const FieldValue blob_value = FieldValue::FromBlob(ByteString("abc"));
   clone = blob_value;
-  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), clone);
-  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), blob_value);
+  EXPECT_EQ(FieldValue::FromBlob(ByteString("abc")), clone);
+  EXPECT_EQ(FieldValue::FromBlob(ByteString("abc")), blob_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), clone);
+  EXPECT_EQ(FieldValue::FromBlob(ByteString("abc")), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -691,7 +684,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue number_value = FieldValue::Nan();
   const FieldValue timestamp_value = FieldValue::FromTimestamp({100, 200});
   const FieldValue string_value = FieldValue::FromString("abc");
-  const FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
+  const FieldValue blob_value = FieldValue::FromBlob(ByteString("abc"));
   const DatabaseId database_id("project", "database");
   const FieldValue reference_value =
       FieldValue::FromReference(database_id, Key("root/abc"));

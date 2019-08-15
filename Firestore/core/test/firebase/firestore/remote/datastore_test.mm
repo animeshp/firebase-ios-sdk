@@ -26,6 +26,7 @@
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/str_cat.h"
 #include "gtest/gtest.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1/Document.pbobjc.h"
@@ -44,7 +45,6 @@ using util::CompletionEndState;
 using util::GrpcStreamTester;
 using util::FakeCredentialsProvider;
 using util::FakeGrpcQueue;
-using util::WrapNSString;
 using util::ExecutorLibdispatch;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
@@ -61,8 +61,8 @@ grpc::ByteBuffer MakeByteBuffer(NSData* data) {
 
 grpc::ByteBuffer MakeFakeDocument(const std::string& doc_name) {
   GCFSDocument* doc = [GCFSDocument message];
-  doc.name =
-      WrapNSString(std::string{"projects/p/databases/d/documents/"} + doc_name);
+  doc.name = util::MakeNSString(
+      absl::StrCat("projects/p/databases/d/documents/", doc_name));
   GCFSValue* value = [GCFSValue message];
   value.stringValue = @"bar";
   [doc.fields addEntriesFromDictionary:@{
@@ -105,7 +105,7 @@ class DatastoreTest : public testing::Test {
       : worker_queue{std::make_shared<AsyncQueue>(
             absl::make_unique<ExecutorLibdispatch>(dispatch_queue_create(
                 "datastore_test", DISPATCH_QUEUE_SERIAL)))},
-        database_info{DatabaseId{"p", "d"}, "", "some.host", false},
+        database_info{DatabaseId{"p", "d"}, "", "localhost", false},
         datastore{CreateDatastore(database_info, worker_queue, &credentials)},
         fake_grpc_queue{datastore->queue()} {
     // Deliberately don't `Start` the `Datastore` to prevent normal gRPC
@@ -257,7 +257,7 @@ TEST_F(DatastoreTest, CommitMutationsError) {
 
   EXPECT_TRUE(done);
   EXPECT_FALSE(resulting_status.ok());
-  EXPECT_EQ(resulting_status.code(), FirestoreErrorCode::Unavailable);
+  EXPECT_EQ(resulting_status.code(), Error::Unavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
@@ -277,7 +277,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorBeforeFirstRead) {
 
   EXPECT_TRUE(done);
   EXPECT_FALSE(resulting_status.ok());
-  EXPECT_EQ(resulting_status.code(), FirestoreErrorCode::Unavailable);
+  EXPECT_EQ(resulting_status.code(), Error::Unavailable);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
@@ -301,7 +301,7 @@ TEST_F(DatastoreTest, LookupDocumentsErrorAfterFirstRead) {
   EXPECT_TRUE(done);
   EXPECT_TRUE(resulting_docs.empty());
   EXPECT_FALSE(resulting_status.ok());
-  EXPECT_EQ(resulting_status.code(), FirestoreErrorCode::Unavailable);
+  EXPECT_EQ(resulting_status.code(), Error::Unavailable);
 }
 
 // Auth errors
@@ -358,32 +358,25 @@ TEST_F(DatastoreTest, AuthOutlivesDatastore) {
 // Error classification
 
 TEST_F(DatastoreTest, IsPermanentError) {
+  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Cancelled, ""}));
   EXPECT_FALSE(
-      Datastore::IsPermanentError(Status{FirestoreErrorCode::Cancelled, ""}));
-  EXPECT_FALSE(Datastore::IsPermanentError(
-      Status{FirestoreErrorCode::ResourceExhausted, ""}));
-  EXPECT_FALSE(
-      Datastore::IsPermanentError(Status{FirestoreErrorCode::Unavailable, ""}));
+      Datastore::IsPermanentError(Status{Error::ResourceExhausted, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Unavailable, ""}));
   // User info doesn't matter:
   EXPECT_FALSE(Datastore::IsPermanentError(
-      Status{FirestoreErrorCode::Unavailable, "Connectivity lost"}));
+      Status{Error::Unavailable, "Connectivity lost"}));
   // "unauthenticated" is considered a recoverable error due to expired token.
-  EXPECT_FALSE(Datastore::IsPermanentError(
-      Status{FirestoreErrorCode::Unauthenticated, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentError(Status{Error::Unauthenticated, ""}));
 
-  EXPECT_TRUE(
-      Datastore::IsPermanentError(Status{FirestoreErrorCode::DataLoss, ""}));
-  EXPECT_TRUE(
-      Datastore::IsPermanentError(Status{FirestoreErrorCode::Aborted, ""}));
+  EXPECT_TRUE(Datastore::IsPermanentError(Status{Error::DataLoss, ""}));
+  EXPECT_TRUE(Datastore::IsPermanentError(Status{Error::Aborted, ""}));
 }
 
 TEST_F(DatastoreTest, IsPermanentWriteError) {
-  EXPECT_FALSE(Datastore::IsPermanentWriteError(
-      Status{FirestoreErrorCode::Unauthenticated, ""}));
-  EXPECT_TRUE(Datastore::IsPermanentWriteError(
-      Status{FirestoreErrorCode::DataLoss, ""}));
-  EXPECT_FALSE(Datastore::IsPermanentWriteError(
-      Status{FirestoreErrorCode::Aborted, ""}));
+  EXPECT_FALSE(
+      Datastore::IsPermanentWriteError(Status{Error::Unauthenticated, ""}));
+  EXPECT_TRUE(Datastore::IsPermanentWriteError(Status{Error::DataLoss, ""}));
+  EXPECT_FALSE(Datastore::IsPermanentWriteError(Status{Error::Aborted, ""}));
 }
 
 }  // namespace remote

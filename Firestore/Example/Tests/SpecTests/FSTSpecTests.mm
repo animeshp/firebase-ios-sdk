@@ -19,16 +19,17 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
 #include <map>
+#include <memory>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTEventManager.h"
+#import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
@@ -39,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -51,15 +53,19 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/types/optional.h"
 
 namespace objc = firebase::firestore::objc;
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DocumentViewChange;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentState;
+using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
@@ -71,6 +77,8 @@ using firebase::firestore::remote::WatchTargetChangeState;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::TimerId;
+
+using testutil::Filter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -173,19 +181,23 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
     ResourcePath resource_path = ResourcePath::FromString(util::MakeString(path));
-    NSString *_Nullable collectionGroup = queryDict[@"collectionGroup"];
+    std::shared_ptr<const std::string> collectionGroup =
+        util::MakeStringPtr(queryDict[@"collectionGroup"]);
     __block FSTQuery *query = [FSTQuery queryWithPath:resource_path
                                       collectionGroup:collectionGroup];
     if (queryDict[@"limit"]) {
-      NSNumber *limit = queryDict[@"limit"];
-      query = [query queryBySettingLimit:limit.integerValue];
+      NSNumber *limitNumber = queryDict[@"limit"];
+      auto limit = static_cast<int32_t>(limitNumber.integerValue);
+      query = [query queryBySettingLimit:limit];
     }
     if (queryDict[@"filters"]) {
+      FSTUserDataConverter *converter = FSTTestUserDataConverter();
       NSArray *filters = queryDict[@"filters"];
       [filters enumerateObjectsUsingBlock:^(NSArray *_Nonnull filter, NSUInteger idx,
                                             BOOL *_Nonnull stop) {
-        query = [query
-            queryByAddingFilter:FSTTestFilter(util::MakeString(filter[0]), filter[1], filter[2])];
+        FieldValue value = [converter parsedQueryValue:filter[2]];
+        query = [query queryByAddingFilter:Filter(util::MakeString(filter[0]),
+                                                  util::MakeString(filter[1]), value)];
       }];
     }
     if (queryDict[@"orderBys"]) {
@@ -210,11 +222,11 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
-  FSTDocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
-                                       ? FSTDocumentStateLocalMutations
-                                       : ([options[@"hasCommittedMutations"] isEqualToNumber:@YES]
-                                              ? FSTDocumentStateCommittedMutations
-                                              : FSTDocumentStateSynced);
+  DocumentState documentState = [options[@"hasLocalMutations"] isEqualToNumber:@YES]
+                                    ? DocumentState::kLocalMutations
+                                    : ([options[@"hasCommittedMutations"] isEqualToNumber:@YES]
+                                           ? DocumentState::kCommittedMutations
+                                           : DocumentState::kSynced);
 
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
   FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)jsonDoc[@"key"]),
@@ -271,7 +283,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
     NSDictionary *userInfo = @{
       NSLocalizedDescriptionKey : @"Error from watchRemove.",
     };
-    error = Status{static_cast<FirestoreErrorCode>(code), MakeString([userInfo description])};
+    error = Status{static_cast<Error>(code), MakeString([userInfo description])};
   }
   WatchTargetChange change{WatchTargetChangeState::Removed,
                            ConvertTargetsArray(watchRemoveSpec[@"targetIds"]), error};
@@ -298,14 +310,14 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
   } else if (watchEntity[@"doc"]) {
     NSDictionary *docSpec = watchEntity[@"doc"];
     DocumentKey key = FSTTestDocKey(docSpec[@"key"]);
-    FSTObjectValue *_Nullable value = [docSpec[@"value"] isKindOfClass:[NSNull class]]
-                                          ? nil
-                                          : FSTTestObjectValue(docSpec[@"value"]);
+    absl::optional<ObjectValue> value = [docSpec[@"value"] isKindOfClass:[NSNull class]]
+                                            ? absl::optional<ObjectValue>{}
+                                            : FSTTestObjectValue(docSpec[@"value"]);
     SnapshotVersion version = [self parseVersion:docSpec[@"version"]];
-    FSTMaybeDocument *doc = value ? [FSTDocument documentWithData:value
+    FSTMaybeDocument *doc = value ? [FSTDocument documentWithData:*value
                                                               key:key
                                                           version:std::move(version)
-                                                            state:FSTDocumentStateSynced]
+                                                            state:DocumentState::kSynced]
                                   : [FSTDeletedDocument documentWithKey:key
                                                                 version:std::move(version)
                                                   hasCommittedMutations:NO];
@@ -369,7 +381,7 @@ std::vector<TargetId> ConvertTargetsArray(NSArray<NSNumber *> *from) {
                 @"multi-client tests");
 
   FSTMutationResult *mutationResult = [[FSTMutationResult alloc] initWithVersion:version
-                                                                transformResults:nil];
+                                                                transformResults:absl::nullopt];
   [self.driver receiveWriteAckWithVersion:version mutationResults:{mutationResult}];
 }
 

@@ -16,11 +16,13 @@
 
 #import "GDTCCTLibrary/Private/GDTCCTNanopbHelpers.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
-#endif  // TARGET_OS_IOS || TARGET_OS_TVOS
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
+
+#import <GoogleDataTransport/GDTConsoleLogger.h>
 
 #import <nanopb/pb.h>
 #import <nanopb/pb_decode.h>
@@ -48,7 +50,8 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
   pb_ostream_t sizestream = PB_OSTREAM_SIZING;
   // Encode 1 time to determine the size.
   if (!pb_encode(&sizestream, gdt_cct_BatchedLogRequest_fields, batchedLogRequest)) {
-    NSCAssert(NO, @"Error in nanopb encoding for size: %s", PB_GET_ERROR(&sizestream));
+    GDTLogError(GDTMCEGeneralError, @"Error in nanopb encoding for size: %s",
+                PB_GET_ERROR(&sizestream));
   }
 
   // Encode a 2nd time to actually get the bytes from it.
@@ -56,7 +59,8 @@ NSData *_Nullable GDTCCTEncodeBatchedLogRequest(gdt_cct_BatchedLogRequest *batch
   CFMutableDataRef dataRef = CFDataCreateMutable(CFAllocatorGetDefault(), bufferSize);
   pb_ostream_t ostream = pb_ostream_from_buffer((void *)CFDataGetBytePtr(dataRef), bufferSize);
   if (!pb_encode(&ostream, gdt_cct_BatchedLogRequest_fields, batchedLogRequest)) {
-    NSCAssert(NO, @"Error in nanopb encoding for bytes: %s", PB_GET_ERROR(&ostream));
+    GDTLogError(GDTMCEGeneralError, @"Error in nanopb encoding for bytes: %s",
+                PB_GET_ERROR(&ostream));
   }
   CFDataSetLength(dataRef, ostream.bytes_written);
 
@@ -86,7 +90,11 @@ gdt_cct_BatchedLogRequest GDTCCTConstructBatchedLogRequest(
 
 gdt_cct_LogRequest GDTCCTConstructLogRequest(int32_t logSource,
                                              NSSet<GDTStoredEvent *> *_Nonnull logSet) {
-  NSCAssert(logSet.count, @"An empty event set can't be serialized to proto.");
+  if (logSet.count == 0) {
+    GDTLogError(GDTMCEGeneralError, @"%@", @"An empty event set can't be serialized to proto.");
+    gdt_cct_LogRequest logRequest = gdt_cct_LogRequest_init_default;
+    return logRequest;
+  }
   gdt_cct_LogRequest logRequest = gdt_cct_LogRequest_init_default;
   logRequest.log_source = logSource;
   logRequest.has_log_source = 1;
@@ -118,7 +126,11 @@ gdt_cct_LogEvent GDTCCTConstructLogEvent(GDTStoredEvent *event) {
   NSData *extensionBytes = [NSData dataWithContentsOfURL:event.dataFuture.fileURL
                                                  options:0
                                                    error:&error];
-  NSCAssert(error == nil, @"There was an error reading extension bytes from disk: %@", error);
+  if (error) {
+    GDTLogError(GDTMCEGeneralError, @"There was an error reading extension bytes from disk: %@",
+                error);
+    return logEvent;
+  }
   logEvent.source_extension = GDTCCTEncodeData(extensionBytes);  // read bytes from the file.
   return logEvent;
 }
@@ -127,7 +139,7 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo() {
   gdt_cct_ClientInfo clientInfo = gdt_cct_ClientInfo_init_default;
   clientInfo.client_type = gdt_cct_ClientInfo_ClientType_IOS_FIREBASE;
   clientInfo.has_client_type = 1;
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
   clientInfo.ios_client_info = GDTCCTConstructiOSClientInfo();
   clientInfo.has_ios_client_info = 1;
 #elif TARGET_OS_OSX
@@ -138,7 +150,7 @@ gdt_cct_ClientInfo GDTCCTConstructClientInfo() {
 
 gdt_cct_IosClientInfo GDTCCTConstructiOSClientInfo() {
   gdt_cct_IosClientInfo iOSClientInfo = gdt_cct_IosClientInfo_init_default;
-#if TARGET_OS_IOS || TARGET_OS_TVOS
+#if TARGET_OS_IOS || TARGET_OS_TV
   UIDevice *device = [UIDevice currentDevice];
   NSBundle *bundle = [NSBundle mainBundle];
   NSLocale *locale = [NSLocale currentLocale];
@@ -165,8 +177,11 @@ gdt_cct_LogResponse GDTCCTDecodeLogResponse(NSData *data, NSError **error) {
   gdt_cct_LogResponse response = gdt_cct_LogResponse_init_default;
   pb_istream_t istream = pb_istream_from_buffer([data bytes], [data length]);
   if (!pb_decode(&istream, gdt_cct_LogResponse_fields, &response)) {
-    NSCAssert(NO, @"Error in nanopb decoding for bytes: %s", PB_GET_ERROR(&istream));
-    *error = [NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:nil];
+    NSString *nanopb_error = [NSString stringWithFormat:@"%s", PB_GET_ERROR(&istream)];
+    NSDictionary *userInfo = @{@"nanopb error:" : nanopb_error};
+    if (error != NULL) {
+      *error = [NSError errorWithDomain:NSURLErrorDomain code:-1 userInfo:userInfo];
+    }
     response = (gdt_cct_LogResponse)gdt_cct_LogResponse_init_default;
   }
   return response;

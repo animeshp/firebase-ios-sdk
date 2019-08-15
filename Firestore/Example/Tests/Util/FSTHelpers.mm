@@ -29,15 +29,15 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTView.h"
-#import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 
 #include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/core/view_snapshot.h"
+#include "Firestore/core/src/firebase/firestore/local/local_view_changes.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/document_set.h"
@@ -58,16 +58,19 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::core::Filter;
 using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::core::ViewSnapshot;
+using firebase::firestore::local::LocalViewChanges;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentComparator;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentSet;
+using firebase::firestore::model::DocumentState;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::MaybeDocumentMap;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
@@ -139,17 +142,17 @@ FSTUserDataConverter *FSTTestUserDataConverter() {
   return converter;
 }
 
-FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
+FieldValue FSTTestFieldValue(id _Nullable value) {
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
   // HACK: We use parsedQueryValue: since it accepts scalars as well as arrays / objects, and
   // our tests currently use FSTTestFieldValue() pretty generically so we don't know the intent.
   return [converter parsedQueryValue:value];
 }
 
-FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
-  FSTFieldValue *wrapped = FSTTestFieldValue(data);
-  HARD_ASSERT(wrapped.type == FieldValue::Type::Object, "Unsupported value: %s", data);
-  return (FSTObjectValue *)wrapped;
+ObjectValue FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
+  FieldValue wrapped = FSTTestFieldValue(data);
+  HARD_ASSERT(wrapped.type() == FieldValue::Type::Object, "Unsupported value: %s", data);
+  return ObjectValue(std::move(wrapped));
 }
 
 DocumentKey FSTTestDocKey(NSString *path) {
@@ -159,7 +162,7 @@ DocumentKey FSTTestDocKey(NSString *path) {
 FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
-                        FSTDocumentState documentState) {
+                        DocumentState documentState) {
   DocumentKey key = testutil::Key(path);
   return [FSTDocument documentWithData:FSTTestObjectValue(data)
                                    key:key
@@ -189,30 +192,6 @@ FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database,
 
 FSTQuery *FSTTestQuery(const absl::string_view path) {
   return [FSTQuery queryWithPath:testutil::Resource(path)];
-}
-
-FSTFilter *FSTTestFilter(const absl::string_view field, NSString *opString, id value) {
-  const FieldPath path = testutil::Field(field);
-  Filter::Operator op;
-  if ([opString isEqualToString:@"<"]) {
-    op = Filter::Operator::LessThan;
-  } else if ([opString isEqualToString:@"<="]) {
-    op = Filter::Operator::LessThanOrEqual;
-  } else if ([opString isEqualToString:@"=="]) {
-    op = Filter::Operator::Equal;
-  } else if ([opString isEqualToString:@">="]) {
-    op = Filter::Operator::GreaterThanOrEqual;
-  } else if ([opString isEqualToString:@">"]) {
-    op = Filter::Operator::GreaterThan;
-  } else if ([opString isEqualToString:@"array_contains"]) {
-    op = Filter::Operator::ArrayContains;
-  } else {
-    HARD_FAIL("Unsupported operator type: %s", opString);
-  }
-
-  FSTFieldValue *data = FSTTestFieldValue(value);
-
-  return [FSTFilter filterWithField:path filterOperator:op value:data];
 }
 
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
@@ -254,14 +233,14 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
                                        const std::vector<FieldPath> &updateMask) {
   BOOL merge = !updateMask.empty();
 
-  __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
+  __block ObjectValue objectValue = ObjectValue::Empty();
   __block std::set<FieldPath> fieldMaskPaths;
   [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
     const FieldPath path = testutil::Field(util::MakeString(key));
     fieldMaskPaths.insert(path);
     if (![value isEqual:kDeleteSentinel]) {
-      FSTFieldValue *parsedValue = FSTTestFieldValue(value);
-      objectValue = [objectValue objectBySettingValue:parsedValue forPath:path];
+      FieldValue parsedValue = FSTTestFieldValue(value);
+      objectValue = objectValue.Set(path, std::move(parsedValue));
     }
   }];
 
@@ -279,7 +258,7 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSSt
   DocumentKey key{testutil::Resource(util::MakeString(path))};
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
   ParsedUpdateData result = [converter parsedUpdateData:data];
-  HARD_ASSERT(result.data().value.count == 0,
+  HARD_ASSERT(result.data().size() == 0,
               "FSTTestTransformMutation() only expects transforms; no other data");
   return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:result.field_transforms()];
 }
@@ -442,9 +421,9 @@ NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion s
   return [snapshotString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-FSTLocalViewChanges *FSTTestViewChanges(TargetId targetID,
-                                        NSArray<NSString *> *addedKeys,
-                                        NSArray<NSString *> *removedKeys) {
+LocalViewChanges TestViewChanges(TargetId targetID,
+                                 NSArray<NSString *> *addedKeys,
+                                 NSArray<NSString *> *removedKeys) {
   DocumentKeySet added;
   for (NSString *keyPath in addedKeys) {
     added = added.insert(testutil::Key(util::MakeString(keyPath)));
@@ -453,9 +432,7 @@ FSTLocalViewChanges *FSTTestViewChanges(TargetId targetID,
   for (NSString *keyPath in removedKeys) {
     removed = removed.insert(testutil::Key(util::MakeString(keyPath)));
   }
-  return [FSTLocalViewChanges changesForTarget:targetID
-                                     addedKeys:std::move(added)
-                                   removedKeys:std::move(removed)];
+  return LocalViewChanges(targetID, std::move(added), std::move(removed));
 }
 
 NS_ASSUME_NONNULL_END

@@ -55,7 +55,7 @@
 #include "absl/memory/memory.h"
 
 namespace objc = firebase::firestore::objc;
-using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::Error;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
@@ -81,7 +81,6 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::StringFormat;
 using firebase::firestore::util::ToString;
-using firebase::firestore::util::WrapNSString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -101,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The Query is also included in the view, so we skip it.
   std::string str = StringFormat("<FSTQueryEvent: viewSnapshot=%s, error=%s>",
                                  ToString(_maybeViewSnapshot), self.error);
-  return WrapNSString(str);
+  return util::MakeNSString(str);
 }
 
 @end
@@ -312,7 +311,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTOutstandingWrite *)receiveWriteError:(int)errorCode
                                   userInfo:(NSDictionary<NSString *, id> *)userInfo
                                keepInQueue:(BOOL)keepInQueue {
-  Status error{static_cast<FirestoreErrorCode>(errorCode), MakeString([userInfo description])};
+  Status error{static_cast<Error>(errorCode), MakeString([userInfo description])};
 
   FSTOutstandingWrite *write = [self currentOutstandingWrites].firstObject;
   [self validateNextWriteSent:write.write];
@@ -409,7 +408,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)receiveWatchStreamError:(int)errorCode userInfo:(NSDictionary<NSString *, id> *)userInfo {
-  Status error{static_cast<FirestoreErrorCode>(errorCode), MakeString([userInfo description])};
+  Status error{static_cast<Error>(errorCode), MakeString([userInfo description])};
 
   _workerQueue->EnqueueBlocking([&] {
     _datastore->FailWatchStream(error);

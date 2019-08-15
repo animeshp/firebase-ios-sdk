@@ -55,14 +55,18 @@ struct FrameworkBuilder {
   /// The directory containing the Xcode project and Pods folder.
   private let projectDir: URL
 
+  /// A flag to indicate this build is for carthage. This is primarily used for CoreDiagnostics.
+  private let carthageBuild: Bool
+
   /// The Pods directory for building the framework.
   private var podsDir: URL {
     return projectDir.appendingPathComponent("Pods", isDirectory: true)
   }
 
   /// Default initializer.
-  init(projectDir: URL) {
+  init(projectDir: URL, carthageBuild: Bool = false) {
     self.projectDir = projectDir
+    self.carthageBuild = carthageBuild
   }
 
   // MARK: - Public Functions
@@ -215,6 +219,7 @@ struct FrameworkBuilder {
                          logRoot: URL) -> URL {
     let platform = arch.platform
     let workspacePath = projectDir.appendingPathComponent("FrameworkMaker.xcworkspace").path
+    let distributionFlag = carthageBuild ? "-DFIREBASE_BUILD_CARTHAGE" : "-DFIREBASE_BUILD_ZIP_FILE"
     let standardOptions = ["build",
                            "-configuration", "release",
                            "-workspace", workspacePath,
@@ -222,7 +227,8 @@ struct FrameworkBuilder {
                            "GCC_GENERATE_DEBUGGING_SYMBOLS=No",
                            "ARCHS=\(arch.rawValue)",
                            "BUILD_DIR=\(buildDir.path)",
-                           "-sdk", platform.rawValue]
+                           "-sdk", platform.rawValue,
+                           "OTHER_CFLAGS=$(value) \(distributionFlag)"]
     let args = standardOptions + platform.extraArguments()
     print("""
     Compiling \(framework) for \(arch.rawValue) with command:
@@ -412,7 +418,7 @@ struct FrameworkBuilder {
 
     // Verify Firebase headers include an explicit umbrella header for Firebase.h.
     let headersDir = podsDir.appendingPathComponents(["Headers", "Public", framework])
-    if framework.hasPrefix("Firebase") {
+    if framework.hasPrefix("Firebase") && framework != "FirebaseCoreDiagnostics" {
       let frameworkHeader = headersDir.appendingPathComponent("\(framework).h")
       guard fileManager.fileExists(atPath: frameworkHeader.path) else {
         fatalError("Missing explicit umbrella header for \(framework).")

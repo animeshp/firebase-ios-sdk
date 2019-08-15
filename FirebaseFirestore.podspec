@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.3.2'
+  s.version          = '1.4.3'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -25,7 +25,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.prefix_header_file = false
 
   s.source_files = [
-    'Firestore/Source/**/*',
+    'Firestore/Source/**/*.{h,m,mm}',
     'Firestore/Protos/nanopb/**/*.{h,cc}',
     'Firestore/Protos/objc/**/*.[hm]',
     'Firestore/core/include/**/*.{h,cc,mm}',
@@ -52,7 +52,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'FirebaseCore', '~> 6.2'
   s.dependency 'gRPC-C++', '0.0.9'
   s.dependency 'leveldb-library', '~> 1.20'
   s.dependency 'Protobuf', '~> 3.1'
@@ -75,6 +75,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' =>
       '"${PODS_TARGET_SRCROOT}" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp" ' +
       '"${PODS_ROOT}/nanopb" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"',

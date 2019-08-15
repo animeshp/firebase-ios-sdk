@@ -106,9 +106,12 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 }
 
 - (IBAction)actionButtonTapped:(id)sender {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   FIRInAppMessagingAction *action = [[FIRInAppMessagingAction alloc]
       initWithActionText:self.modalDisplayMessage.actionButton.buttonText
                actionURL:self.modalDisplayMessage.actionURL];
+#pragma clang diagnostic pop
   [self followAction:action];
 }
 

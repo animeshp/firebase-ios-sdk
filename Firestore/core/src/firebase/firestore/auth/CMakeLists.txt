@@ -32,7 +32,12 @@ cc_library(
     firebase_credentials_provider_apple.h
     firebase_credentials_provider_apple.mm
   DEPENDS
+    FirebaseAuthInterop
     FirebaseCore
+    FirebaseCoreDiagnostics
+    FirebaseCoreDiagnosticsInterop
+    GoogleDataTransport
+    GoogleDataTransportCCTSupport
     GoogleUtilities
     firebase_firestore_auth_base
   EXCLUDE_FROM_ALL

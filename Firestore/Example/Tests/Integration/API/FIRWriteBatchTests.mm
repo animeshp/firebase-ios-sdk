@@ -28,8 +28,8 @@
 #include "Firestore/core/src/firebase/firestore/util/sanitizers.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::util::CreateAutoId;
-using firebase::firestore::util::WrapNSString;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -134,8 +134,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testUpdateFieldsWithDots {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;  // b/112104025
-
   FIRDocumentReference *doc = [self documentRef];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"testUpdateFieldsWithDots"];
@@ -327,8 +325,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testCanWriteVeryLargeBatches {
-  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) return;
-
   // On Android, SQLite Cursors are limited reading no more than 2 MB per row (despite being able
   // to write very large values). This test verifies that the local MutationQueue is not subject
   // to this limitation.
@@ -338,7 +334,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *kb = [@"" stringByPaddingToLength:1000 withString:@"a" startingAtIndex:0];
   NSMutableDictionary<NSString *, id> *values = [NSMutableDictionary dictionary];
   for (int i = 0; i < 1000; i++) {
-    values[WrapNSString(CreateAutoId())] = kb;
+    values[util::MakeNSString(CreateAutoId())] = kb;
   }
 
   FIRDocumentReference *doc = [self documentRef];

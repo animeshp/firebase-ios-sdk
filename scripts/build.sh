@@ -181,6 +181,11 @@ fi
 
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
+    # Coverage collection often cause retries to fail because of partial
+    # pre-existing data.
+    # TODO(paulb777): Find a less blunt solution to this.
+    rm -rf ~/Library/Developer/Xcode/DerivedData
+
     RunXcodebuild \
         -workspace 'Example/Firebase.xcworkspace' \
         -scheme "AllUnitTests_$platform" \
@@ -221,6 +226,25 @@ case "$product-$method-$platform" in
           "${xcb_flags[@]}" \
           build \
           test
+    fi
+    ;;
+
+  Auth-xcodebuild-*)
+    if [[ "$TRAVIS_PULL_REQUEST" == "false" ||
+          "$TRAVIS_PULL_REQUEST_SLUG" == "$TRAVIS_REPO_SLUG" ]]; then
+      RunXcodebuild \
+        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
+        -scheme "Auth_ApiTests" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+      RunXcodebuild \
+        -workspace 'Example/Auth/AuthSample/AuthSample.xcworkspace' \
+        -scheme "Auth_E2eTests" \
+        "${xcb_flags[@]}" \
+        build \
+        test
     fi
     ;;
 
@@ -286,29 +310,25 @@ case "$product-$method-$platform" in
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_Tests_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    # Firestore_SwiftTests_iOS require Swift 4, which needs Xcode 9
-    if [[ "$platform" == 'iOS' && "$xcode_major" -ge 9 ]]; then
+    if [[ "$xcode_major" -lt 9 ]]; then
+      # When building and testing for Xcode 8, only test unit tests.
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_SwiftTests_iOS" \
+          -scheme "Firestore_Tests_$platform" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+
+    else
+      # IntegrationTests run all the tests, including Swift tests, which
+      # require Swift 4.0 and Xcode 9+.
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_$platform" \
           "${xcb_flags[@]}" \
           build \
           test
     fi
-
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_IntegrationTests_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
     ;;
 
   Firestore-cmake-macOS)
@@ -332,14 +352,14 @@ case "$product-$method-$platform" in
 
   GoogleDataTransport-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
         -scheme "GoogleDataTransport-$platform-Unit-Tests-Unit" \
         "${xcb_flags[@]}" \
         build \
         test
 
     RunXcodebuild \
-        -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
         -scheme "GoogleDataTransport-$platform-Unit-Tests-Lifecycle" \
         "${xcb_flags[@]}" \
         build \
@@ -348,7 +368,7 @@ case "$product-$method-$platform" in
 
   GoogleDataTransportIntegrationTest-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'GoogleDataTransport/gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransport/GoogleDataTransport.xcworkspace' \
         -scheme "GoogleDataTransport-$platform-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
         build \
@@ -357,14 +377,14 @@ case "$product-$method-$platform" in
 
   GoogleDataTransportCCTSupport-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
         -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Unit" \
         "${xcb_flags[@]}" \
         build \
         test
 
     RunXcodebuild \
-        -workspace 'GoogleDataTransportCCTSupport/gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
+        -workspace 'gen/GoogleDataTransportCCTSupport/GoogleDataTransportCCTSupport.xcworkspace' \
         -scheme "GoogleDataTransportCCTSupport-$platform-Unit-Tests-Integration" \
         "${xcb_flags[@]}" \
         build \

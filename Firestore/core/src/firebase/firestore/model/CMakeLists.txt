@@ -22,8 +22,13 @@ cc_library(
     document.h
     document_key.cc
     document_key.h
+    document_key_set.h
     document_map.h
+    document_map.mm
+    document_set.h
+    document_set.mm
     field_mask.h
+    field_mask.cc
     field_path.cc
     field_path.h
     field_transform.h
@@ -45,14 +50,19 @@ cc_library(
     snapshot_version.cc
     snapshot_version.h
     transform_operations.h
+    transform_operations.cc
     types.h
     unknown_document.cc
     unknown_document.h
   DEPENDS
+    # TODO(b/111328563) Force nanopb first to work around ODR violations
+    firebase_firestore_nanopb
+
     absl_optional
     absl_strings
     firebase_firestore_api_input_validation
     firebase_firestore_immutable
+    firebase_firestore_objc
     firebase_firestore_util
     firebase_firestore_types
 )

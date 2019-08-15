@@ -20,6 +20,10 @@ cc_library(
     xcgmock.h
   DEPENDS
     FirebaseCore
+    FirebaseCoreDiagnostics
+    FirebaseCoreDiagnosticsInterop
+    GoogleDataTransport
+    GoogleDataTransportCCTSupport
     GoogleUtilities
     absl_strings
   EXCLUDE_FROM_ALL
@@ -35,7 +39,12 @@ cc_library(
     equals_tester.h
     testutil.cc
     testutil.h
+    time_testing.cc
+    time_testing.h
   DEPENDS
+    # TODO(b/111328563) Force nanopb first to work around ODR violations
+    firebase_firestore_nanopb
+
     ${TESTUTIL_DEPENDS}
     firebase_firestore_model
 )

@@ -17,9 +17,9 @@
 #import "GDTLibrary/Private/GDTUploadCoordinator.h"
 
 #import <GoogleDataTransport/GDTClock.h>
+#import <GoogleDataTransport/GDTConsoleLogger.h>
 
 #import "GDTLibrary/Private/GDTAssert.h"
-#import "GDTLibrary/Private/GDTConsoleLogger.h"
 #import "GDTLibrary/Private/GDTReachability.h"
 #import "GDTLibrary/Private/GDTRegistrar_Private.h"
 #import "GDTLibrary/Private/GDTStorage.h"
@@ -103,6 +103,9 @@
  */
 - (void)uploadTargets:(NSArray<NSNumber *> *)targets conditions:(GDTUploadConditions)conditions {
   dispatch_async(_coordinationQueue, ^{
+    if ((conditions & GDTUploadConditionNoNetwork) == GDTUploadConditionNoNetwork) {
+      return;
+    }
     for (NSNumber *target in targets) {
       // Don't trigger uploads for targets that have an in-flight package already.
       if (self->_targetToInFlightPackages[target]) {
@@ -113,8 +116,12 @@
       if ([uploader readyToUploadWithConditions:conditions]) {
         id<GDTPrioritizer> prioritizer = self.registrar.targetToPrioritizer[target];
         GDTUploadPackage *package = [prioritizer uploadPackageWithConditions:conditions];
-        self->_targetToInFlightPackages[target] = package;
-        [uploader uploadPackage:package];
+        if (package.events.count) {
+          self->_targetToInFlightPackages[target] = package;
+          [uploader uploadPackage:package];
+        } else {
+          [package completeDelivery];
+        }
       }
     }
   });
@@ -126,38 +133,22 @@
  */
 - (GDTUploadConditions)uploadConditions {
   SCNetworkReachabilityFlags currentFlags = [GDTReachability currentFlags];
-
   BOOL reachable =
       (currentFlags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable;
   BOOL connectionRequired = (currentFlags & kSCNetworkReachabilityFlagsConnectionRequired) ==
                             kSCNetworkReachabilityFlagsConnectionRequired;
-  BOOL interventionRequired = (currentFlags & kSCNetworkReachabilityFlagsInterventionRequired) ==
-                              kSCNetworkReachabilityFlagsInterventionRequired;
-  BOOL connectionOnDemand = (currentFlags & kSCNetworkReachabilityFlagsConnectionOnDemand) ==
-                            kSCNetworkReachabilityFlagsConnectionOnDemand;
-  BOOL connectionOnTraffic = (currentFlags & kSCNetworkReachabilityFlagsConnectionOnTraffic) ==
-                             kSCNetworkReachabilityFlagsConnectionOnTraffic;
-  BOOL isWWAN = GDTReachabilityFlagsContainWWAN(currentFlags);
+  BOOL networkConnected = reachable && !connectionRequired;
 
-  if (!reachable) {
+  if (!networkConnected) {
     return GDTUploadConditionNoNetwork;
   }
 
-  GDTUploadConditions conditions = 0;
-  conditions |= !connectionRequired ? GDTUploadConditionWifiData : conditions;
-  conditions |= isWWAN ? GDTUploadConditionMobileData : conditions;
-  if ((connectionOnTraffic || connectionOnDemand) && !interventionRequired) {
-    conditions = GDTUploadConditionWifiData;
+  BOOL isWWAN = GDTReachabilityFlagsContainWWAN(currentFlags);
+  if (isWWAN) {
+    return GDTUploadConditionMobileData;
+  } else {
+    return GDTUploadConditionWifiData;
   }
-
-  BOOL wifi = (conditions & GDTUploadConditionWifiData) == GDTUploadConditionWifiData;
-  BOOL cell = (conditions & GDTUploadConditionMobileData) == GDTUploadConditionMobileData;
-
-  if (!(wifi || cell)) {
-    conditions = GDTUploadConditionUnclearConnection;
-  }
-
-  return conditions;
 }
 
 #pragma mark - NSSecureCoding support
@@ -217,29 +208,52 @@ static NSString *const ktargetToInFlightPackagesKey =
 #pragma mark - GDTUploadPackageProtocol
 
 - (void)packageDelivered:(GDTUploadPackage *)package successful:(BOOL)successful {
+  if (!_coordinationQueue) {
+    return;
+  }
   dispatch_async(_coordinationQueue, ^{
     NSNumber *targetNumber = @(package.target);
-    [self->_targetToInFlightPackages removeObjectForKey:targetNumber];
-    id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
-    NSAssert(prioritizer, @"A prioritizer should be registered for this target: %@", targetNumber);
-    if ([prioritizer respondsToSelector:@selector(packageDelivered:successful:)]) {
-      [prioritizer packageDelivered:package successful:successful];
+    NSMutableDictionary<NSNumber *, GDTUploadPackage *> *targetToInFlightPackages =
+        self->_targetToInFlightPackages;
+    GDTRegistrar *registrar = self->_registrar;
+    if (targetToInFlightPackages) {
+      [targetToInFlightPackages removeObjectForKey:targetNumber];
+    }
+    if (registrar) {
+      id<GDTPrioritizer> prioritizer = registrar.targetToPrioritizer[targetNumber];
+      if (!prioritizer) {
+        GDTLogError(GDTMCEPrioritizerError,
+                    @"A prioritizer should be registered for this target: %@", targetNumber);
+      }
+      if ([prioritizer respondsToSelector:@selector(packageDelivered:successful:)]) {
+        [prioritizer packageDelivered:package successful:successful];
+      }
     }
     [self.storage removeEvents:package.events];
   });
 }
 
 - (void)packageExpired:(GDTUploadPackage *)package {
+  if (!_coordinationQueue) {
+    return;
+  }
   dispatch_async(_coordinationQueue, ^{
     NSNumber *targetNumber = @(package.target);
-    [self->_targetToInFlightPackages removeObjectForKey:targetNumber];
-    id<GDTPrioritizer> prioritizer = self->_registrar.targetToPrioritizer[targetNumber];
-    id<GDTUploader> uploader = self->_registrar.targetToUploader[targetNumber];
-    if ([prioritizer respondsToSelector:@selector(packageExpired:)]) {
-      [prioritizer packageExpired:package];
+    NSMutableDictionary<NSNumber *, GDTUploadPackage *> *targetToInFlightPackages =
+        self->_targetToInFlightPackages;
+    GDTRegistrar *registrar = self->_registrar;
+    if (targetToInFlightPackages) {
+      [targetToInFlightPackages removeObjectForKey:targetNumber];
     }
-    if ([uploader respondsToSelector:@selector(packageExpired:)]) {
-      [uploader packageExpired:package];
+    if (registrar) {
+      id<GDTPrioritizer> prioritizer = registrar.targetToPrioritizer[targetNumber];
+      id<GDTUploader> uploader = registrar.targetToUploader[targetNumber];
+      if ([prioritizer respondsToSelector:@selector(packageExpired:)]) {
+        [prioritizer packageExpired:package];
+      }
+      if ([uploader respondsToSelector:@selector(packageExpired:)]) {
+        [uploader packageExpired:package];
+      }
     }
   });
 }
