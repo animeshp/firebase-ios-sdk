@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14810.11" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_9" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina5_9" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14766.13"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -21,7 +21,7 @@
                         <viewControllerLayoutGuide type="bottom" id="8Ta-Lb-9Rg"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ef6-R8-q1S">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rA8-LH-EYm">
@@ -61,11 +61,11 @@
                         <viewControllerLayoutGuide type="bottom" id="K7E-8I-Yw5"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="vRb-yf-OWE">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VfB-vw-7up">
-                                <rect key="frame" x="5" y="3" width="60" height="60"/>
+                                <rect key="frame" x="5" y="47" width="60" height="60"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-image-view">
                                     <bool key="isElement" value="YES"/>
                                 </accessibility>
@@ -75,14 +75,14 @@
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Messaging Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rzo-9i-rXZ">
-                                <rect key="frame" x="70" y="3" width="510" height="20.5"/>
+                                <rect key="frame" x="70" y="47" width="289" height="20.333333333333329"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-message-title-view"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="message body" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GOK-vx-mU8">
-                                <rect key="frame" x="70" y="31.5" width="510" height="68.5"/>
+                                <rect key="frame" x="70" y="75.333333333333329" width="289" height="202.66666666666669"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-body-label"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
@@ -131,7 +131,7 @@
                         <viewControllerLayoutGuide type="bottom" id="I6y-sz-UcT"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="SM1-hn-m3n">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view" customClass="RoundedCornersView">
@@ -175,18 +175,18 @@
                                             </mask>
                                         </variation>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" ambiguous="YES" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVh-9O-yfC" userLabel="Title label">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVh-9O-yfC" userLabel="Title label">
                                         <rect key="frame" x="24" y="184" width="192" height="24"/>
                                         <accessibility key="accessibilityConfiguration" identifier="card-title-label"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Tmr-ar-k7h">
+                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tmr-ar-k7h">
                                         <rect key="frame" x="24" y="232" width="192" height="38"/>
                                         <subviews>
                                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" scrollEnabled="NO" contentInsetAdjustmentBehavior="never" editable="NO" text="Label" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="elG-N9-aqH" userLabel="Body text view">
-                                                <rect key="frame" x="0.0" y="0.0" width="52" height="38"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="192" height="38"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="card-body-text-view"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -365,9 +365,9 @@
                                         </constraints>
                                         <variation key="default">
                                             <mask key="constraints">
+                                                <exclude reference="JDY-TA-1Tl"/>
                                                 <exclude reference="MCP-na-kk3"/>
                                                 <exclude reference="TYr-av-EDC"/>
-                                                <exclude reference="JDY-TA-1Tl"/>
                                             </mask>
                                         </variation>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -397,7 +397,7 @@
                                     </textView>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="T2T-mb-Tgi">
                                         <rect key="frame" x="10" y="399.66666666666674" width="303" height="34"/>
-                                        <nil key="textColor"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress" returnKeyType="done" enablesReturnKeyAutomatically="YES" textContentType="email"/>
                                         <connections>
@@ -455,18 +455,18 @@
                                 </constraints>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="hYb-oc-QMe"/>
-                                        <exclude reference="whT-y5-efx"/>
-                                        <exclude reference="pjM-XX-BrP"/>
                                         <exclude reference="KT7-XB-Og6"/>
+                                        <exclude reference="hYb-oc-QMe"/>
+                                        <exclude reference="pjM-XX-BrP"/>
+                                        <exclude reference="whT-y5-efx"/>
                                         <exclude reference="7kp-kx-oWk"/>
-                                        <exclude reference="lLo-fi-qdF"/>
                                         <exclude reference="OQW-ry-w7S"/>
                                         <exclude reference="htO-ih-rwy"/>
+                                        <exclude reference="lLo-fi-qdF"/>
                                         <exclude reference="pWN-U7-KhZ"/>
+                                        <exclude reference="2qk-hi-Nq7"/>
                                         <exclude reference="XE3-Ke-BtG"/>
                                         <exclude reference="tI0-M2-Y6o"/>
-                                        <exclude reference="2qk-hi-Nq7"/>
                                         <exclude reference="5fd-nv-rHW"/>
                                     </mask>
                                 </variation>
@@ -487,14 +487,14 @@
                                     <mask key="constraints">
                                         <include reference="lmL-Cx-bdK"/>
                                         <include reference="z6y-cn-in2"/>
-                                        <include reference="c5T-lV-c0t"/>
                                         <include reference="Efj-6h-i0F"/>
+                                        <include reference="c5T-lV-c0t"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=regular">
                                     <mask key="constraints">
-                                        <exclude reference="hYb-oc-QMe"/>
                                         <exclude reference="KT7-XB-Og6"/>
+                                        <exclude reference="hYb-oc-QMe"/>
                                     </mask>
                                 </variation>
                             </view>
@@ -524,9 +524,9 @@
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
+                                <exclude reference="4M8-cm-IK9"/>
                                 <exclude reference="NOA-Hy-G6N"/>
                                 <exclude reference="Zzu-IX-Xhw"/>
-                                <exclude reference="4M8-cm-IK9"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
@@ -537,8 +537,8 @@
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
                             <mask key="constraints">
-                                <include reference="6R5-KN-k4F"/>
                                 <include reference="4M8-cm-IK9"/>
+                                <include reference="6R5-KN-k4F"/>
                             </mask>
                         </variation>
                     </view>
