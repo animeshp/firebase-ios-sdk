@@ -250,20 +250,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
+				"${PODS_ROOT}/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
+				"${PODS_ROOT}/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		713C0E63D08BE66EB0414B42 /* [CP] Check Pods Manifest.lock */ = {
@@ -294,20 +289,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseInAppMessagingDisplay/InAppMessagingDisplayResources.bundle",
+				"${PODS_ROOT}/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/InAppMessagingDisplayResources.bundle",
+				"${PODS_ROOT}/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-FiamDisplaySwiftExample/Pods-FiamDisplaySwiftExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

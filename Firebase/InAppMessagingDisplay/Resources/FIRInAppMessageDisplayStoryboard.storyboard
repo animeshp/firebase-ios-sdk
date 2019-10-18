@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina6_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -65,7 +65,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VfB-vw-7up">
-                                <rect key="frame" x="5" y="3" width="60" height="60"/>
+                                <rect key="frame" x="5" y="47" width="60" height="60"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-image-view">
                                     <bool key="isElement" value="YES"/>
                                 </accessibility>
@@ -122,263 +122,6 @@
             </objects>
             <point key="canvasLocation" x="-7.2000000000000002" y="-174.06296851574214"/>
         </scene>
-        <!--Modal View Controller-->
-        <scene sceneID="hvu-tO-txi">
-            <objects>
-                <viewController storyboardIdentifier="modal-view-vc" id="x01-lq-3r6" customClass="FIDModalViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="42w-41-Nyy"/>
-                        <viewControllerLayoutGuide type="bottom" id="1nT-S0-O8H"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="1pz-BP-O6T">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jER-Re-ODh">
-                                <rect key="frame" x="30" y="187.66666666666669" width="354" height="520.66666666666652"/>
-                                <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Message Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edi-DJ-cR8">
-                                        <rect key="frame" x="24" y="24" width="306" height="34"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="34" identifier="Title Label Height Constraint" id="Gzz-dd-hYn" userLabel="Title Label Height Constraint"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="700" translatesAutoresizingMaskIntoConstraints="NO" id="c7x-Lf-M58">
-                                        <rect key="frame" x="24" y="82.000000000000043" width="306" height="230.66666666666663"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="modal-image-view">
-                                            <bool key="isElement" value="YES"/>
-                                        </accessibility>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="144" identifier="actual height at runtime" id="EeQ-n5-WE7" userLabel="actual height at runtime"/>
-                                            <constraint firstAttribute="width" constant="270" identifier="Image Width In Landscape Mode" id="lJJ-PY-Yai"/>
-                                            <constraint firstAttribute="height" priority="900" constant="230.66999999999999" placeholder="YES" identifier="image height to make interface builder happy" id="pm4-tp-Fjt" userLabel="image height to make interface builder happy"/>
-                                        </constraints>
-                                        <variation key="default">
-                                            <mask key="constraints">
-                                                <exclude reference="EeQ-n5-WE7"/>
-                                                <exclude reference="lJJ-PY-Yai"/>
-                                            </mask>
-                                        </variation>
-                                        <variation key="heightClass=compact">
-                                            <mask key="constraints">
-                                                <include reference="lJJ-PY-Yai"/>
-                                            </mask>
-                                        </variation>
-                                        <variation key="widthClass=regular">
-                                            <mask key="constraints">
-                                                <include reference="lJJ-PY-Yai"/>
-                                            </mask>
-                                        </variation>
-                                    </imageView>
-                                    <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="252" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VmW-ue-K1q">
-                                        <rect key="frame" x="114" y="460.66666666666674" width="126" height="36"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="message-action-button"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="36" identifier="Max Action Button Height" id="6T1-on-oWM"/>
-                                        </constraints>
-                                        <inset key="contentEdgeInsets" minX="16" minY="9" maxX="16" maxY="9"/>
-                                        <state key="normal" title="Action Button"/>
-                                        <connections>
-                                            <action selector="actionButtonTapped:" destination="x01-lq-3r6" eventType="touchUpInside" id="EBt-cx-fnZ"/>
-                                        </connections>
-                                    </button>
-                                    <textView clipsSubviews="YES" clearsContextBeforeDrawing="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor " textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="24j-6H-N9j">
-                                        <rect key="frame" x="24" y="336.66666666666674" width="306" height="100"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="message-body-textview"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="100" identifier="Body Text View Height Constraint" id="h2w-ub-tEc"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                                    </textView>
-                                </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <accessibility key="accessibilityConfiguration" identifier="message-card-view">
-                                    <bool key="isElement" value="NO"/>
-                                </accessibility>
-                                <constraints>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" relation="greaterThanOrEqual" secondItem="jER-Re-ODh" secondAttribute="top" constant="24" identifier="Image View.top ≥ top + 24" id="0Fp-k2-48a"/>
-                                    <constraint firstItem="24j-6H-N9j" firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" identifier="Body Text View.trailing = Title Label.trailing" id="0aC-BE-yfJ"/>
-                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="leading" secondItem="c7x-Lf-M58" secondAttribute="trailing" constant="24" identifier="Title Label.leading = Image View.trailing + 24" id="7vK-9V-j5H"/>
-                                    <constraint firstAttribute="height" priority="100" constant="650" identifier="Fixed Message Card Height Constraint" id="8Yx-fI-jXG"/>
-                                    <constraint firstAttribute="height" constant="279" placeholder="YES" identifier="card height to make interface builder happy" id="8qu-C8-A9u" userLabel="card height to make interface builder happy"/>
-                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="20" identifier="Title Top To Card View Top" id="9La-QV-ftg" userLabel="Title Top To Card View Top"/>
-                                    <constraint firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" constant="24" identifier="trailing = Title Label.trailing + 24" id="Ait-Na-aVF"/>
-                                    <constraint firstItem="VmW-ue-K1q" firstAttribute="centerX" secondItem="Edi-DJ-cR8" secondAttribute="centerX" identifier="Action Button.centerX = Title Label.centerX" id="C8M-PR-rUI"/>
-                                    <constraint firstItem="VmW-ue-K1q" firstAttribute="centerX" secondItem="jER-Re-ODh" secondAttribute="centerX" identifier="Action Button.centerX = centerX" id="CSN-TG-E9H"/>
-                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="24" identifier="Title Label.top = top + 24" id="FTB-yV-c00"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="centerY" secondItem="jER-Re-ODh" secondAttribute="centerY" identifier="Image View.centerY = centerY" id="Hm8-0s-RTs"/>
-                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="leading" secondItem="jER-Re-ODh" secondAttribute="leading" constant="24" identifier="Title Label.leading = leading + 24" id="JJo-tI-mvn"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" identifier="Image View.trailing = Title Label.trailing" id="JUy-lx-oR6"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" secondItem="Edi-DJ-cR8" secondAttribute="bottom" constant="24" identifier="Image Top To Title Bottom In Portrait Mode" id="Kec-yq-1Pz"/>
-                                    <constraint firstAttribute="width" constant="650" identifier="Card Width for Tablet" id="Ln4-8U-D7V" userLabel="Card Width for Tablet"/>
-                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="1000" identifier="Max Card Height In Landscape Mode" id="MCf-U1-0tP"/>
-                                    <constraint firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" constant="24" identifier="trailing = Title Label.trailing + 24" id="RbZ-9Q-1S3"/>
-                                    <constraint firstItem="24j-6H-N9j" firstAttribute="top" secondItem="c7x-Lf-M58" secondAttribute="bottom" constant="24" identifier="Body Text View.top = Image View.bottom + 24" id="RdS-Ao-GH0"/>
-                                    <constraint firstItem="VmW-ue-K1q" firstAttribute="top" secondItem="24j-6H-N9j" secondAttribute="bottom" constant="24" identifier="Button Top To Body Bottom Constraint" id="Vej-p0-b6w"/>
-                                    <constraint firstAttribute="bottom" secondItem="VmW-ue-K1q" secondAttribute="bottom" constant="24" identifier="Button Bottom To Container Bottom In Portrait Mode" id="YoE-KS-uWS"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="leading" secondItem="Edi-DJ-cR8" secondAttribute="leading" identifier="Image View.leading = Title Label.leading" id="bD7-OU-bEW"/>
-                                    <constraint firstItem="24j-6H-N9j" firstAttribute="leading" secondItem="Edi-DJ-cR8" secondAttribute="leading" identifier="Body Text View.leading = Title Label.leading" id="fWU-5d-D4W"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="c7x-Lf-M58" secondAttribute="bottom" constant="24" identifier="bottom ≥ Image View.bottom + 24" id="ivB-jb-LVl"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="20" identifier="Image Top To Card Top In Landscape Mode" id="pyI-1U-ujR" userLabel="Image Top To Card Top In Landscape Mode"/>
-                                    <constraint firstItem="24j-6H-N9j" firstAttribute="top" secondItem="Edi-DJ-cR8" secondAttribute="bottom" constant="24" identifier="Body Top To Title Bottom In Land Scape Mode" id="qgb-13-uT4"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="VmW-ue-K1q" secondAttribute="bottom" priority="900" constant="20" identifier="bottom ≥ Action Button.bottom + 20 @900" id="xXr-od-zOM"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="leading" secondItem="jER-Re-ODh" secondAttribute="leading" constant="24" identifier="Image View.leading = leading + 24" id="ysk-iC-Hz4"/>
-                                </constraints>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <real key="value" value="4"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <variation key="default">
-                                    <mask key="constraints">
-                                        <exclude reference="8Yx-fI-jXG"/>
-                                        <exclude reference="8qu-C8-A9u"/>
-                                        <exclude reference="Ln4-8U-D7V"/>
-                                        <exclude reference="MCf-U1-0tP"/>
-                                        <exclude reference="7vK-9V-j5H"/>
-                                        <exclude reference="9La-QV-ftg"/>
-                                        <exclude reference="Ait-Na-aVF"/>
-                                        <exclude reference="FTB-yV-c00"/>
-                                        <exclude reference="JJo-tI-mvn"/>
-                                        <exclude reference="RbZ-9Q-1S3"/>
-                                        <exclude reference="0Fp-k2-48a"/>
-                                        <exclude reference="Hm8-0s-RTs"/>
-                                        <exclude reference="JUy-lx-oR6"/>
-                                        <exclude reference="Kec-yq-1Pz"/>
-                                        <exclude reference="bD7-OU-bEW"/>
-                                        <exclude reference="ivB-jb-LVl"/>
-                                        <exclude reference="pyI-1U-ujR"/>
-                                        <exclude reference="ysk-iC-Hz4"/>
-                                        <exclude reference="RdS-Ao-GH0"/>
-                                        <exclude reference="qgb-13-uT4"/>
-                                        <exclude reference="CSN-TG-E9H"/>
-                                        <exclude reference="YoE-KS-uWS"/>
-                                        <exclude reference="xXr-od-zOM"/>
-                                    </mask>
-                                </variation>
-                                <variation key="heightClass=compact">
-                                    <mask key="constraints">
-                                        <include reference="MCf-U1-0tP"/>
-                                        <include reference="7vK-9V-j5H"/>
-                                        <include reference="9La-QV-ftg"/>
-                                        <include reference="Ait-Na-aVF"/>
-                                        <include reference="Hm8-0s-RTs"/>
-                                        <include reference="pyI-1U-ujR"/>
-                                        <include reference="ysk-iC-Hz4"/>
-                                        <include reference="qgb-13-uT4"/>
-                                        <include reference="xXr-od-zOM"/>
-                                    </mask>
-                                </variation>
-                                <variation key="widthClass=regular">
-                                    <mask key="constraints">
-                                        <include reference="MCf-U1-0tP"/>
-                                        <include reference="7vK-9V-j5H"/>
-                                        <include reference="9La-QV-ftg"/>
-                                        <include reference="Ait-Na-aVF"/>
-                                        <include reference="Hm8-0s-RTs"/>
-                                        <include reference="ysk-iC-Hz4"/>
-                                        <include reference="qgb-13-uT4"/>
-                                        <include reference="xXr-od-zOM"/>
-                                    </mask>
-                                </variation>
-                                <variation key="heightClass=regular-widthClass=compact">
-                                    <mask key="constraints">
-                                        <include reference="FTB-yV-c00"/>
-                                        <include reference="JJo-tI-mvn"/>
-                                        <include reference="RbZ-9Q-1S3"/>
-                                        <include reference="JUy-lx-oR6"/>
-                                        <include reference="Kec-yq-1Pz"/>
-                                        <include reference="bD7-OU-bEW"/>
-                                        <include reference="RdS-Ao-GH0"/>
-                                        <include reference="CSN-TG-E9H"/>
-                                        <include reference="YoE-KS-uWS"/>
-                                    </mask>
-                                </variation>
-                                <variation key="heightClass=regular-widthClass=regular">
-                                    <mask key="constraints">
-                                        <include reference="8qu-C8-A9u"/>
-                                        <include reference="Ln4-8U-D7V"/>
-                                        <include reference="0Fp-k2-48a"/>
-                                        <include reference="ivB-jb-LVl"/>
-                                    </mask>
-                                </variation>
-                            </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="akA-AE-VPc">
-                                <rect key="frame" x="364" y="167.66666666666666" width="40" height="40"/>
-                                <accessibility key="accessibilityConfiguration" identifier="close-button"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="40" identifier="Close button width = 40" id="Dwi-In-x47"/>
-                                    <constraint firstAttribute="height" constant="40" identifier="Close button height = 40" id="tIe-pH-jRO"/>
-                                </constraints>
-                                <state key="normal" backgroundImage="close-with-transparency.png"/>
-                                <connections>
-                                    <action selector="closeButtonClicked:" destination="x01-lq-3r6" eventType="touchUpInside" id="L0w-8X-Lcz"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="centerY" secondItem="1pz-BP-O6T" secondAttribute="centerY" identifier="Message Card View.centerY = centerY" id="GSo-F2-pSS"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="42w-41-Nyy" secondAttribute="bottom" constant="24" identifier="Message Card View.top ≥ Top Layout Guide.bottom + 24" id="Yvr-Y4-aEK"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="leading" secondItem="1pz-BP-O6T" secondAttribute="leadingMargin" constant="10" identifier="Message Card View.leading = leadingMargin + 10" id="bX2-s2-74w"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="42w-41-Nyy" secondAttribute="bottom" constant="10" identifier="Message Card View.top ≥ Top Layout Guide.bottom + 10" id="fyU-hx-Wh1"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="leading" secondItem="1pz-BP-O6T" secondAttribute="leading" constant="20" identifier="Card Leading Margin In Landscape Mode" id="kj1-PP-7nG"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="centerX" secondItem="1pz-BP-O6T" secondAttribute="centerX" identifier="Message Card View.centerX = centerX" id="m0a-I2-6sC"/>
-                            <constraint firstItem="akA-AE-VPc" firstAttribute="centerX" secondItem="jER-Re-ODh" secondAttribute="trailing" identifier="Close Button.centerX = Message Card View.trailing" id="nIB-zo-TIv"/>
-                            <constraint firstItem="akA-AE-VPc" firstAttribute="centerY" secondItem="jER-Re-ODh" secondAttribute="top" identifier="Close Button.centerY = Message Card View.top" id="va9-kv-0KG"/>
-                        </constraints>
-                        <variation key="default">
-                            <mask key="constraints">
-                                <exclude reference="Yvr-Y4-aEK"/>
-                                <exclude reference="bX2-s2-74w"/>
-                                <exclude reference="fyU-hx-Wh1"/>
-                                <exclude reference="kj1-PP-7nG"/>
-                            </mask>
-                        </variation>
-                        <variation key="heightClass=compact">
-                            <mask key="constraints">
-                                <include reference="Yvr-Y4-aEK"/>
-                                <include reference="kj1-PP-7nG"/>
-                            </mask>
-                        </variation>
-                        <variation key="heightClass=regular-widthClass=compact">
-                            <mask key="constraints">
-                                <include reference="bX2-s2-74w"/>
-                                <include reference="fyU-hx-Wh1"/>
-                            </mask>
-                        </variation>
-                    </view>
-                    <connections>
-                        <outlet property="actionButton" destination="VmW-ue-K1q" id="eAv-DD-aQX"/>
-                        <outlet property="bodyTextView" destination="24j-6H-N9j" id="3b8-e9-dEF"/>
-                        <outlet property="bodyTextViewHeightConstraint" destination="h2w-ub-tEc" id="Prs-9n-XRc"/>
-                        <outlet property="bodyTopToTitleBottomInLandScapeMode" destination="qgb-13-uT4" id="Zb2-39-i8v"/>
-                        <outlet property="buttonBottomToContainerBottomInPortraitMode" destination="YoE-KS-uWS" id="7Wv-1S-qCs"/>
-                        <outlet property="buttonTopToBodyBottomConstraint" destination="Vej-p0-b6w" id="Q7d-su-7PP"/>
-                        <outlet property="cardLeadingMarginInLandscapeMode" destination="kj1-PP-7nG" id="6LC-4f-EBE"/>
-                        <outlet property="closeButton" destination="akA-AE-VPc" id="lI3-0d-NnR"/>
-                        <outlet property="fixedMessageCardHeightConstraint" destination="8Yx-fI-jXG" id="aiZ-Vx-bJe"/>
-                        <outlet property="imageActualHeightConstraint" destination="EeQ-n5-WE7" id="GQ9-em-yWE"/>
-                        <outlet property="imageTopToCardTopInLandscapeMode" destination="pyI-1U-ujR" id="ZiI-y6-v8i"/>
-                        <outlet property="imageTopToTitleBottomInPortraitMode" destination="Kec-yq-1Pz" id="Kp0-Nj-epr"/>
-                        <outlet property="imageView" destination="c7x-Lf-M58" id="IRT-Z5-UHL"/>
-                        <outlet property="imageWidthInLandscapeMode" destination="lJJ-PY-Yai" id="gfq-0r-tJ7"/>
-                        <outlet property="maxActionButtonHeight" destination="6T1-on-oWM" id="VnS-5x-Y9U"/>
-                        <outlet property="maxCardHeightInLandscapeMode" destination="MCf-U1-0tP" id="mcd-hJ-kKU"/>
-                        <outlet property="messageCardView" destination="jER-Re-ODh" id="Z4R-xH-f6q"/>
-                        <outlet property="titleLabel" destination="Edi-DJ-cR8" id="72O-Ya-DCs"/>
-                        <outlet property="titleLabelHeightConstraint" destination="Gzz-dd-hYn" id="H2i-6R-dtp"/>
-                        <outlet property="titleTopToCardViewTop" destination="9La-QV-ftg" id="gDg-ai-eWw"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="bBr-eC-fVz" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="916" y="-177.66116941529236"/>
-        </scene>
         <!--Card View Controller-->
         <scene sceneID="5eQ-Ln-que">
             <objects>
@@ -391,8 +134,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view">
-                                <rect key="frame" x="87" y="87" width="240" height="240"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view">
+                                <rect key="frame" x="87" y="87" width="240" height="722"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
                                         <rect key="frame" x="0.0" y="0.0" width="240" height="160"/>
@@ -432,18 +175,18 @@
                                             </mask>
                                         </variation>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" ambiguous="YES" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVh-9O-yfC" userLabel="Title label">
-                                        <rect key="frame" x="24" y="184" width="192" height="24"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oVh-9O-yfC" userLabel="Title label">
+                                        <rect key="frame" x="24" y="184" width="192" height="26.333333333333343"/>
                                         <accessibility key="accessibilityConfiguration" identifier="card-title-label"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Tmr-ar-k7h">
-                                        <rect key="frame" x="24" y="232" width="192" height="38"/>
+                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tmr-ar-k7h">
+                                        <rect key="frame" x="24" y="234.33333333333331" width="192" height="38"/>
                                         <subviews>
                                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" verticalHuggingPriority="1000" scrollEnabled="NO" contentInsetAdjustmentBehavior="never" editable="NO" text="Label" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="elG-N9-aqH" userLabel="Body text view">
-                                                <rect key="frame" x="0.0" y="0.0" width="52" height="38"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="192" height="38"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="card-body-text-view"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
@@ -459,8 +202,8 @@
                                             <constraint firstItem="elG-N9-aqH" firstAttribute="width" secondItem="Tmr-ar-k7h" secondAttribute="width" id="dXF-bM-hYF"/>
                                         </constraints>
                                     </scrollView>
-                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" verticalCompressionResistancePriority="1000" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
-                                        <rect key="frame" x="163" y="186" width="53" height="30"/>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
+                                        <rect key="frame" x="163" y="668" width="53" height="30"/>
                                         <accessibility key="accessibilityConfiguration" identifier="card-primary-action-button"/>
                                         <constraints>
                                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="pxm-yD-xhm"/>
@@ -470,8 +213,8 @@
                                             <action selector="primaryActionButtonTapped:" destination="oTF-1C-LZP" eventType="touchUpInside" id="Jk0-dp-Qgj"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="1000" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
-                                        <rect key="frame" x="65" y="186" width="74" height="30"/>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
+                                        <rect key="frame" x="65" y="668" width="74" height="30"/>
                                         <accessibility key="accessibilityConfiguration" identifier="card-secondary-action-button"/>
                                         <constraints>
                                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="bpF-9w-pDe"/>
@@ -565,6 +308,7 @@
                         <constraints>
                             <constraint firstItem="Aft-rr-icV" firstAttribute="centerX" secondItem="SM1-hn-m3n" secondAttribute="centerX" identifier="Center card view horizontally" id="5rk-YP-Qx8" userLabel="Center card view horizontally"/>
                             <constraint firstItem="Aft-rr-icV" firstAttribute="centerY" secondItem="SM1-hn-m3n" secondAttribute="centerY" identifier="Center card view vertically" id="N6p-hW-l6v" userLabel="Center card view vertically"/>
+                            <constraint firstItem="Aft-rr-icV" firstAttribute="top" secondItem="1Sy-cb-zoy" secondAttribute="bottom" constant="43" id="Oxy-SO-JIX"/>
                             <constraint firstItem="Aft-rr-icV" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="SM1-hn-m3n" secondAttribute="leadingMargin" constant="10" identifier="Card view left padding of at least 10 in super view" id="UPX-5a-akO" userLabel="Card view left padding of at least 10 in super view"/>
                             <constraint firstItem="Aft-rr-icV" firstAttribute="leading" secondItem="SM1-hn-m3n" secondAttribute="leadingMargin" constant="20" identifier="Card view left padding of 20 in superview - landscape phone" id="f2U-O8-7pI" userLabel="Card view left padding of 20 in superview - landscape phone"/>
                             <constraint firstItem="Aft-rr-icV" firstAttribute="top" relation="greaterThanOrEqual" secondItem="1Sy-cb-zoy" secondAttribute="bottom" constant="10" identifier="Card view top padding of at least 10 in super view" id="rYP-c9-NxX" userLabel="Card view top padding of at least 10 in super view"/>
@@ -603,14 +347,14 @@
                         <viewControllerLayoutGuide type="bottom" id="3n1-r9-lO8"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="xCu-kv-U48">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="j68-KV-43U">
-                                <rect key="frame" x="26" y="151.66666666666666" width="323" height="508.66666666666674"/>
+                                <rect key="frame" x="30" y="193.66666666666666" width="354" height="508.66666666666674"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="700" translatesAutoresizingMaskIntoConstraints="NO" id="8AR-qx-Rrg">
-                                        <rect key="frame" x="0.0" y="0.0" width="323" height="230.66666666666666"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="354" height="230.66666666666666"/>
                                         <accessibility key="accessibilityConfiguration" identifier="modal-image-view">
                                             <bool key="isElement" value="YES"/>
                                         </accessibility>
@@ -622,9 +366,9 @@
                                         </constraints>
                                         <variation key="default">
                                             <mask key="constraints">
+                                                <exclude reference="JDY-TA-1Tl"/>
                                                 <exclude reference="MCP-na-kk3"/>
                                                 <exclude reference="TYr-av-EDC"/>
-                                                <exclude reference="JDY-TA-1Tl"/>
                                             </mask>
                                         </variation>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -634,7 +378,7 @@
                                         </variation>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="💸 Want 10% off your first order? 💸" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hyn-O7-CrX">
-                                        <rect key="frame" x="10" y="240.66666666666663" width="303" height="34"/>
+                                        <rect key="frame" x="10" y="240.66666666666663" width="334" height="34"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="34" identifier="Title Label Height Constraint" id="wnV-FV-am7" userLabel="Title Label Height Constraint"/>
                                         </constraints>
@@ -643,7 +387,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <textView clipsSubviews="YES" clearsContextBeforeDrawing="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Hi0-Mg-eeE">
-                                        <rect key="frame" x="10" y="289.66666666666663" width="303" height="100"/>
+                                        <rect key="frame" x="10" y="289.66666666666663" width="334" height="100"/>
                                         <accessibility key="accessibilityConfiguration" identifier="message-body-textview"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="100" identifier="Body Text View Height Constraint" id="kb9-II-Iln"/>
@@ -653,8 +397,7 @@
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="T2T-mb-Tgi">
-                                        <rect key="frame" x="10" y="399.66666666666674" width="303" height="34"/>
-                                        <nil key="textColor"/>
+                                        <rect key="frame" x="10" y="399.66666666666674" width="334" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress" returnKeyType="done" enablesReturnKeyAutomatically="YES" textContentType="email"/>
                                         <connections>
@@ -662,7 +405,7 @@
                                         </connections>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="252" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e3e-JC-M9w">
-                                        <rect key="frame" x="98.666666666666686" y="448.66666666666674" width="126" height="36"/>
+                                        <rect key="frame" x="114" y="448.66666666666674" width="126" height="36"/>
                                         <accessibility key="accessibilityConfiguration" identifier="message-action-button"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="36" identifier="Max Action Button Height" id="XrX-Cb-vjo"/>
@@ -712,18 +455,18 @@
                                 </constraints>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="hYb-oc-QMe"/>
-                                        <exclude reference="whT-y5-efx"/>
-                                        <exclude reference="pjM-XX-BrP"/>
                                         <exclude reference="KT7-XB-Og6"/>
+                                        <exclude reference="hYb-oc-QMe"/>
+                                        <exclude reference="pjM-XX-BrP"/>
+                                        <exclude reference="whT-y5-efx"/>
                                         <exclude reference="7kp-kx-oWk"/>
-                                        <exclude reference="lLo-fi-qdF"/>
                                         <exclude reference="OQW-ry-w7S"/>
                                         <exclude reference="htO-ih-rwy"/>
+                                        <exclude reference="lLo-fi-qdF"/>
                                         <exclude reference="pWN-U7-KhZ"/>
+                                        <exclude reference="2qk-hi-Nq7"/>
                                         <exclude reference="XE3-Ke-BtG"/>
                                         <exclude reference="tI0-M2-Y6o"/>
-                                        <exclude reference="2qk-hi-Nq7"/>
                                         <exclude reference="5fd-nv-rHW"/>
                                     </mask>
                                 </variation>
@@ -744,19 +487,19 @@
                                     <mask key="constraints">
                                         <include reference="lmL-Cx-bdK"/>
                                         <include reference="z6y-cn-in2"/>
-                                        <include reference="c5T-lV-c0t"/>
                                         <include reference="Efj-6h-i0F"/>
+                                        <include reference="c5T-lV-c0t"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=regular">
                                     <mask key="constraints">
-                                        <exclude reference="hYb-oc-QMe"/>
                                         <exclude reference="KT7-XB-Og6"/>
+                                        <exclude reference="hYb-oc-QMe"/>
                                     </mask>
                                 </variation>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tsm-d7-XxH">
-                                <rect key="frame" x="329" y="131.66666666666666" width="40" height="40"/>
+                                <rect key="frame" x="364" y="173.66666666666666" width="40" height="40"/>
                                 <accessibility key="accessibilityConfiguration" identifier="close-button"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" identifier="Close button height = 40" id="oaH-kO-ceM"/>
@@ -781,9 +524,9 @@
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
+                                <exclude reference="4M8-cm-IK9"/>
                                 <exclude reference="NOA-Hy-G6N"/>
                                 <exclude reference="Zzu-IX-Xhw"/>
-                                <exclude reference="4M8-cm-IK9"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
@@ -794,8 +537,8 @@
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
                             <mask key="constraints">
-                                <include reference="6R5-KN-k4F"/>
                                 <include reference="4M8-cm-IK9"/>
+                                <include reference="6R5-KN-k4F"/>
                             </mask>
                         </variation>
                     </view>
