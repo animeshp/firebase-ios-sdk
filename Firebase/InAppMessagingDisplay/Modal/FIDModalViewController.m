@@ -19,7 +19,7 @@
 #import "FIDModalViewController.h"
 #import "FIRCore+InAppMessagingDisplay.h"
 
-@interface FIDModalViewController ()
+@interface FIDModalViewController ()<UITextFieldDelegate>
 
 @property(nonatomic, readwrite) FIRInAppMessagingModalDisplay *modalDisplayMessage;
 
@@ -29,6 +29,7 @@
 
 @property(weak, nonatomic) IBOutlet UIView *messageCardView;
 @property(weak, nonatomic) IBOutlet UITextView *bodyTextView;
+@property (weak, nonatomic) IBOutlet UITextField *inputTextField;
 @property(weak, nonatomic) IBOutlet UIButton *closeButton;
 
 // this is only needed for removing the layout errors in interface builder. At runtime
@@ -40,11 +41,14 @@
 @property(weak, nonatomic) IBOutlet NSLayoutConstraint *bodyTextViewHeightConstraint;
 @property(weak, nonatomic) IBOutlet NSLayoutConstraint *buttonTopToBodyBottomConstraint;
 @property(weak, nonatomic) IBOutlet NSLayoutConstraint *imageActualHeightConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *textFieldTopToBodyBottomConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *buttonTopToTextFieldBottomConstraint;
 
 // constraints manipulated further in portrait mode
 @property(weak, nonatomic) IBOutlet NSLayoutConstraint *titleLabelHeightConstraint;
 @property(weak, nonatomic) IBOutlet NSLayoutConstraint *buttonBottomToContainerBottomInPortraitMode;
 @property(weak, nonatomic) IBOutlet NSLayoutConstraint *imageTopToTitleBottomInPortraitMode;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *imageWidthConstraint;
 
 // constraints manipulated further in landscape mode
 @property(weak, nonatomic) IBOutlet NSLayoutConstraint *imageWidthInLandscapeMode;
@@ -126,7 +130,7 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
   if (self.modalDisplayMessage.imageData) {
     [self.imageView
         setImage:[UIImage imageWithData:self.modalDisplayMessage.imageData.imageRawData]];
-    self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    //self.imageView.contentMode = UIViewContentModeScaleAspectFit;
   }
 
   self.messageCardView.backgroundColor = self.modalDisplayMessage.displayBackgroundColor;
@@ -305,7 +309,7 @@ struct TitleBodyButtonHeightInfo {
 
   if (self.modalDisplayMessage.imageData) {
     UIImage *image = [UIImage imageWithData:self.modalDisplayMessage.imageData.imageRawData];
-    CGSize imageAvailableSpace = CGSizeMake(self.titleLabel.frame.size.width,
+    CGSize imageAvailableSpace = CGSizeMake(MIN(self.view.frame.size.width, 512),
                                             heightCalcReference - heights.totaColumnlHeight -
                                                 self.imageTopToTitleBottomInPortraitMode.constant);
 
@@ -320,6 +324,7 @@ struct TitleBodyButtonHeightInfo {
 
     // for portrait mode, no need to change image width since no content is shown side to
     // the image
+    self.imageWidthConstraint.constant = imageDisplaySize.width;
     self.imageActualHeightConstraint.constant = imageDisplaySize.height;
   } else {
     // no image case
@@ -423,16 +428,16 @@ struct TitleBodyButtonHeightInfo {
 - (void)viewDidLayoutSubviews {
   [super viewDidLayoutSubviews];
 
-  if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular ||
-      self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
-    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300010",
-                @"Modal view rendered in landscape mode");
-    [self layoutFineTuneInLandscapeMode];
-  } else {
+//  if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular ||
+//      self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
+//    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300010",
+//                @"Modal view rendered in landscape mode");
+//    [self layoutFineTuneInLandscapeMode];
+//  } else {
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300009",
                 @"Modal view rendered in portrait mode");
     [self layoutFineTuneInPortraitMode];
-  }
+ // }
 
   // always scroll to the top in case the body area is scrollable
   [self.bodyTextView setContentOffset:CGPointZero];
@@ -466,5 +471,18 @@ struct TitleBodyButtonHeightInfo {
                    completion:^(BOOL finished){
                        // Do nothing
                    }];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    if (textField.text != nil && ![textField.text isEqualToString:@""]) {
+        [self passbackCustomText:textField.text];
+    }
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    if (textField.text != nil && ![textField.text isEqualToString:@""]) {
+        [self passbackCustomText:textField.text];
+    }
+    return true;
 }
 @end

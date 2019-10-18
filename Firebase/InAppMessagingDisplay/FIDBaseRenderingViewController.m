@@ -168,4 +168,18 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   }
   return;
 }
+
+- (NSString*)passbackCustomText:(NSString*)text {
+    if (self.displayDelegate) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"ReceivedCustomerEmail"
+                                                            object:self.view
+                                                          userInfo:@{@"email": text}
+         ];
+    } else {
+        FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID200008",
+                      @"Display delegate is nil while trying to passback user entered info.");
+    }
+    return text;
+}
+
 @end
