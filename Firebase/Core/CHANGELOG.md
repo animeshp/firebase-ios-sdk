@@ -1,3 +1,12 @@
+# v6.3.3 -- M59
+- [changed] Carthage and zip file distributions are now built with Xcode 11.0.
+  The Carthage and zip file distributions no longer support Xcode 10.3 and below.
+
+# v6.3.2 -- M58
+- [fixed] Fix container instantiation timing, IID startup. (#4030)
+- [changed] Open-sourced Firebase pod. This enables `import Firebase` module
+  support for tvOS and macOS. (#4021)
+
 # v6.3.1 -- M57
 - [fixed] Fixed race condition in component container. (#3967, #3924)
 
