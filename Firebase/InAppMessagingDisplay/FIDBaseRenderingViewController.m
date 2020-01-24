@@ -171,7 +171,7 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
 
 - (NSString*)passbackCustomText:(NSString*)text {
     if (self.displayDelegate) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"ReceivedCustomerEmail"
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"receivedCustomerEmail"
                                                             object:self.view
                                                           userInfo:@{@"email": text}
          ];
