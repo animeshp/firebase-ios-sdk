@@ -33,7 +33,6 @@ product can be one of:
   Firebase
   Firestore
   InAppMessaging
-  InAppMessagingDisplay
   SymbolCollision
 
 platform can be one of:
@@ -203,25 +202,6 @@ if [[ -n "${SANITIZERS:-}" ]]; then
 fi
 
 case "$product-$method-$platform" in
-  Firebase-xcodebuild-*)
-    # Coverage collection often cause retries to fail because of partial
-    # pre-existing data.
-    # TODO(paulb777): Find a less blunt solution to this.
-    rm -rf ~/Library/Developer/Xcode/DerivedData
-
-    RunXcodebuild \
-        -workspace 'Example/Firebase.xcworkspace' \
-        -scheme "AllUnitTests_$platform" \
-        "${xcb_flags[@]}" \
-        build \
-        test
-
-    if [[ $platform == 'iOS' ]]; then
-      # Code Coverage collection is only working on iOS currently.
-      ./scripts/collect_metrics.sh 'Example/Firebase.xcworkspace' "AllUnitTests_$platform"
-    fi
-    ;;
-
   FirebasePod-xcodebuild-*)
     RunXcodebuild \
         -workspace 'CoreOnly/Tests/FirebasePodTest/FirebasePodTest.xcworkspace' \
@@ -242,18 +222,9 @@ case "$product-$method-$platform" in
     fi
     ;;
 
-  InAppMessaging-xcodebuild-iOS)
+  InAppMessaging-xcodebuild-*)
     RunXcodebuild \
-        -workspace 'InAppMessaging/Example/InAppMessaging-Example-iOS.xcworkspace' \
-        -scheme 'InAppMessaging_Example_iOS' \
-        "${xcb_flags[@]}" \
-        build \
-        test
-  ;;
-
-  InAppMessagingDisplay-xcodebuild-*)
-    RunXcodebuild \
-        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace' \
+        -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
         build \
@@ -286,6 +257,9 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-cmake-macOS)
+    "${firestore_emulator}" start
+    trap '"${firestore_emulator}" stop' ERR EXIT
+
     test -d build || mkdir build
     echo "Preparing cmake build ..."
     (cd build; cmake "${cmake_options[@]}" ..)
