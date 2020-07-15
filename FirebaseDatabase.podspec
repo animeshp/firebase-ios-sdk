@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '6.1.4'
-  s.summary          = 'Firebase Open Source Libraries for iOS (plus community support for macOS and tvOS)'
+  s.version          = '6.3.0'
+  s.summary          = 'Firebase Realtime Database'
 
   s.description      = <<-DESC
 Simplify your iOS development, grow your user base, and monetize more effectively with Firebase.
@@ -25,19 +25,22 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.prefix_header_file = false
 
   base_dir = "Firebase/Database/"
-  s.source_files = base_dir + '**/*.[mh]',
+  s.source_files = [
+    base_dir + '**/*.[mh]',
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
-    base_dir + 'third_party/SocketRocket/fbase64.c'
+    base_dir + 'third_party/SocketRocket/fbase64.c',
+    'Interop/Auth/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
   s.public_header_files = base_dir + 'Public/*.h'
   s.libraries = ['c++', 'icucore']
   s.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 6.0'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
-    'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRDatabase_VERSION=' + s.version.to_s
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRDatabase_VERSION=' + s.version.to_s,
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
   s.test_spec 'unit' do |unit_tests|

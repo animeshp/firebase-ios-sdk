@@ -1,4 +1,54 @@
-# Unreleased (v1.10.0)
+# v1.16.0
+- [fixed] Fixed an issue that may have prevented the client from connecting
+  to the backend immediately after a user signed in.
+
+# v1.15.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
+# v1.14.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
+# v1.13.0
+- [changed] Firestore now limits the number of concurrent document lookups it
+  will perform when resolving inconsistencies in the local cache
+  (https://github.com/firebase/firebase-js-sdk/issues/2683).
+- [changed] Upgraded gRPC-C++ to 1.28.0 (#4994).
+- [fixed] Firestore will now send Auth credentials to the Firestore Emulator
+  (#5072).
+
+# v1.12.1
+- [changed] Internal improvements for future C++ and Unity support.
+
+# v1.12.0
+- [changed] Internal improvements for future C++ and Unity support. Includes a
+  breaking change for the Firestore C++ Alpha SDK, but does not affect
+  Objective-C or Swift users.
+
+# v1.11.2
+- [fixed] Fixed the FirebaseFirestore podspec to properly declare its
+  dependency on the UIKit framework on iOS and tvOS.
+
+# v1.11.1
+- [fixed] Firestore should now recover its connection to the server more
+  quickly after returning from the background (#4905).
+
+# v1.11.0
+- [changed] Improved performance of queries with large result sets.
+
+# v1.10.2
+- [changed] Internal improvements.
+
+# v1.10.1
+- [changed] Internal improvements.
+
+# v1.10.0
+- [feature] Firestore previously required that every document read in a
+  transaction must also be written. This requirement has been removed, and
+  you can now read a document in a transaction without writing to it.
 - [changed] Improved the performance of repeatedly executed queries when
   persistence is enabled. Recently executed queries should see dramatic
   improvements. This benefit is reduced if changes accumulate while the query

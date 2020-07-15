@@ -21,7 +21,7 @@
 #import "FIRCLSFileManager.h"
 #import "FIRCLSInternalReport.h"
 #import "FIRCLSMockSymbolResolver.h"
-#import "FIRCLSStackFrame.h"
+#import "FIRStackFrame_Private.h"
 
 @interface FIRCLSProcessReportOperationTests : XCTestCase
 
@@ -70,9 +70,9 @@
   // Setup a resolver that will work for the contents of the file
   FIRCLSMockSymbolResolver *resolver = [[FIRCLSMockSymbolResolver alloc] init];
 
-  FIRCLSStackFrame *frame = nil;
+  FIRStackFrame *frame = nil;
 
-  frame = [FIRCLSStackFrame stackFrameWithSymbol:@"testSymbolA"];
+  frame = [FIRStackFrame stackFrameWithSymbol:@"testSymbolA"];
   [frame setLibrary:@"libA"];
   [frame setOffset:10];
 
@@ -83,8 +83,8 @@
   NSFileManager *fileManager = [NSFileManager defaultManager];
 
   // put an exception in place
-  XCTAssertTrue([fileManager copyItemAtPath:[self pathForResource:CLSReportExceptionFile]
-                                     toPath:[report pathForContentFile:CLSReportExceptionFile]
+  XCTAssertTrue([fileManager copyItemAtPath:[self pathForResource:FIRCLSReportExceptionFile]
+                                     toPath:[report pathForContentFile:FIRCLSReportExceptionFile]
                                       error:nil],
                 @"");
 

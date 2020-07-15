@@ -1,3 +1,54 @@
+# v6.8.0 -- M73
+- [changed] Functionally neutral refactor to simplify FirebaseCore's header usage and replace
+  Interop pods with headers only. This change is the reason most of the Firebase pods have a minor
+  version update and why there may not be another specific release note.
+
+# v6.7.1 -- M71
+- [fixed] Fixed `FirebaseApp`s `bundleID` verification, allowing exact `bundleID` matches
+  for extensions. (#5126)
+
+# v6.7.0 -- M70
+- [fixed] Updated nanopb to 0.3.9.5 (across all Firebase pods). This includes a fix for
+  [CVE-2020-5235](https://github.com/nanopb/nanopb/security/advisories/GHSA-gcx3-7m76-287p).
+  Note that the versioning scheme for the nanopb CocoaPod has changed;
+  see https://github.com/google/nanopb-podspec for more details. (#5191)
+
+# v6.6.7 -- M69
+- [fixed] Fixed Carthage installation failures involving `Protobuf.framework`.
+  `Protobuf.framework` is now separately installable via adding
+  `FirebaseProtobufBinary.json` to the Cartfile. Full details in the [Carthage usage
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md#carthage-usage).
+  (#5276)
+
+# v6.6.6 -- M68
+- [fixed] Fixed unincluded umbrella header warnings in Carthage and zip distributions
+  introduced in Firebase 6.21.0. (#5209)
+
+# v6.6.5 -- M67
+- [changed] The zip distribution is now comprised of xcframeworks instead of
+  frameworks. This provides a binary distribution for the community supported
+  Firebase for Catalyst. See the zip's README for additional details.
+
+- [fixed] The FirebaseCoreDiagnostic.framework in the Carthage distribution
+  now includes an Info.plist. (#4917)
+
+- [changed] The arm64e slice is no longer included the zip
+  distribution's xcframeworks. The slice will be removed from the remaining
+  frameworks in a subsequent release. We will restore once arm64e is
+  officially supported by Apple.
+
+# v6.6.4 -- M66
+- [changed] Added an Apple platform flag (ios/macos/watchos/etc.) to `firebaseUserAgent`.
+  The information will be used to support product decisions related to Apple platforms,
+  e.g. prioritizing watchOS support, etc. (#4939)
+
+# v6.6.3 -- M65
+- [fixed] Fix Zip Builder module map generation that could cause linker missing
+  symbol errors in the 6.14.0 through 6.16.0 binary release distributions. (#4819)
+
+# v6.6.1 -- M63
+- [changed] Minimum required Xcode version changed to 10.3 (was 10.1).
+
 # v6.6.0 -- M62
 - [changed] Reorganized directory structure.
 - [changed] The following SDKs introduce a new transitive dependency on the [Firebase Installations API](https://console.cloud.google.com/apis/library/firebaseinstallations.googleapis.com):

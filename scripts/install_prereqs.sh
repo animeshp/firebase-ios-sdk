@@ -1,4 +1,6 @@
-# Copyright 2018 Google
+#!/usr/bin/env bash
+
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,60 +21,63 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
-bundle install
+set -euo pipefail
 
-function install_secrets() {
-  # Set up secrets for integration tests and metrics collection. This does not work for pull
-  # requests from forks. See
-  # https://docs.travis-ci.com/user/pull-requests#pull-requests-and-security-restrictions
-  if [[ ! -z $encrypted_d6a88994a5ab_key && $secrets_installed != true ]]; then
-    secrets_installed=true
-    openssl aes-256-cbc -K $encrypted_5dda5f491369_key -iv $encrypted_5dda5f491369_iv \
-    -in scripts/travis-encrypted/Secrets.tar.enc \
-    -out scripts/travis-encrypted/Secrets.tar -d
+# apt_install program package
+#
+# Installs the given package if the given command is missing
+function apt_install() {
+  local program="$1"
+  local package="$2"
+  which "$program" >& /dev/null || sudo apt-get install "$package"
+}
 
-    tar xvf scripts/travis-encrypted/Secrets.tar
-
-    cp Secrets/Auth/Sample/Application.plist Example/Auth/Sample/Application.plist
-    cp Secrets/Auth/Sample/AuthCredentials.h Example/Auth/Sample/AuthCredentials.h
-    cp Secrets/Auth/Sample/GoogleService-Info_multi.plist Example/Auth/Sample/GoogleService-Info_multi.plist
-    cp Secrets/Auth/Sample/GoogleService-Info.plist Example/Auth/Sample/GoogleService-Info.plist
-    cp Secrets/Auth/Sample/Sample.entitlements Example/Auth/Sample/Sample.entitlements
-    cp Secrets/Auth/ApiTests/AuthCredentials.h Example/Auth/ApiTests/AuthCredentials.h
-
-    cp Secrets/Storage/App/GoogleService-Info.plist FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
-    cp Secrets/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
-
-    cp Secrets/Metrics/database.config Metrics/database.config
-
-    # Firebase Installations
-    fis_resources_dir=FirebaseInstallations/Source/Tests/Resources/
-    mkdir -p "$fis_resources_dir"
-    cp Secrets/Installations/GoogleService-Info.plist "$fis_resources_dir"
-
-    # FirebaseInstanceID
-    iid_resources_dir=Example/InstanceID/Resources/
-    mkdir -p "$iid_resources_dir"
-    cp Secrets/Installations/GoogleService-Info.plist "$iid_resources_dir"
+function install_xcpretty() {
+  gem install xcpretty
+  if [[ -n "${TRAVIS:-}" ]]; then
+    gem install xcpretty-travis-formatter
   fi
 }
 
-if [[ ! -z $QUICKSTART ]]; then
-  install_secrets
-  ./scripts/setup_quickstart.sh "$QUICKSTART"
+# Default values, if not supplied on the command line or environment
+platform="iOS"
+method="xcodebuild"
+
+if [[ $# -eq 0 ]]; then
+  # Take arguments from the environment
+  project=$PROJECT
+  platform=${PLATFORM:-${platform}}
+  method=${METHOD:-${method}}
+
+else
+  project="$1"
+
+  if [[ $# -gt 1 ]]; then
+    platform="$2"
+  fi
+
+  if [[ $# -gt 2 ]]; then
+    method="$3"
+  fi
 fi
 
-case "$PROJECT-$PLATFORM-$METHOD" in
+echo "Installing prerequisites for $project for $platform using $method"
 
-  FirebasePod-iOS-xcodebuild)
-    gem install xcpretty
+if [[ "$method" != "cmake" ]]; then
+  scripts/setup_bundler.sh
+fi
+
+case "$project-$platform-$method" in
+
+  FirebasePod-iOS-*)
+    install_xcpretty
     bundle exec pod install --project-directory=CoreOnly/Tests/FirebasePodTest --repo-update
     ;;
 
   Auth-*)
     # Install the workspace for integration testing.
-    gem install xcpretty
-    bundle exec pod install --project-directory=Example/Auth/AuthSample --repo-update
+    install_xcpretty
+    bundle exec pod install --project-directory=FirebaseAuth/Tests/Sample --repo-update
     ;;
 
   Crashlytics-*)
@@ -89,58 +94,69 @@ case "$PROJECT-$PLATFORM-$METHOD" in
   Storage-*)
     ;;
 
-  Installations-*)
-    install_secrets
-    ;;
-
-  InstanceID*)
-    install_secrets
-    ;;
-
   InAppMessaging-*-xcodebuild)
-    gem install xcpretty
+    install_xcpretty
     bundle exec pod install --project-directory=FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp --no-repo-update
     ;;
 
   Firestore-*-xcodebuild | Firestore-*-fuzz)
-    if [[ $XCODE_VERSION == "8."* ]]; then
-      # Firestore still compiles with Xcode 8 to help verify general
-      # conformance with C++11 by using an older compiler that doesn't have as
-      # many extensions from later versions of the language. However, Firebase
-      # as a whole does not support this environment and @available checks in
-      # GoogleDataTransport would otherwise break this build.
-      #
-      # This drops the dependency that adds GoogleDataTransport into
-      # Firestore's dependencies.
-      sed -i.bak "/s.dependency 'FirebaseCoreDiagnostics'/d" FirebaseCore.podspec
-    fi
+    install_xcpretty
 
-    gem install xcpretty
+    # The Firestore Podfile is multi-platform by default, but this doesn't work
+    # with command-line builds using xcodebuild. The PLATFORM environment
+    # variable forces the project to be set for just that single platform.
+    export PLATFORM="$platform"
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
 
-  *-pod-lib-lint)
-    ;;
-
-  Firestore-*-cmake)
+  Firestore-iOS-cmake | Firestore-tvOS-cmake | Firestore-macOS-cmake)
     brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
     brew install ccache
+    brew install ninja
 
     # Install python packages required to generate proto sources
     pip install six
     ;;
 
-  SymbolCollision-*-xcodebuild)
-    gem install xcpretty
+  Firestore-Linux-cmake)
+    apt_install ccache ccache
+    apt_install cmake cmake
+    apt_install go golang-go
+    apt_install ninja ninja-build
+
+    # Install python packages required to generate proto sources
+    pip install six
+    ;;
+
+  SymbolCollision-*-*)
+    install_xcpretty
     bundle exec pod install --project-directory=SymbolCollisionTest --repo-update
+    ;;
+
+  MessagingSample-*)
+    install_xcpretty
+    bundle exec pod install --project-directory=FirebaseMessaging/Apps/Sample --repo-update
+    ;;
+
+  GoogleDataTransport-watchOS-xcodebuild)
+    install_xcpretty
+    bundle exec pod install --project-directory=GoogleDataTransport/GDTWatchOSTestApp/ --repo-update
+    ;;
+
+  GoogleDataTransportCCTSupport-watchOS-xcodebuild)
+    install_xcpretty
+    bundle exec pod install --project-directory=GoogleDataTransportCCTSupport/GDTCCTWatchOSTestApp/ --repo-update
+    ;;
+
+  *-pod-lib-lint)
     ;;
 
   *)
     echo "Unknown project-platform-method combo" 1>&2
-    echo "  PROJECT=$PROJECT" 1>&2
-    echo "  PLATFORM=$PLATFORM" 1>&2
-    echo "  METHOD=$METHOD" 1>&2
+    echo "  PROJECT=$project" 1>&2
+    echo "  PLATFORM=$platform" 1>&2
+    echo "  METHOD=$method" 1>&2
     exit 1
     ;;
 esac

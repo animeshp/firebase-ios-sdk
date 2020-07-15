@@ -16,18 +16,18 @@
 
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestPrioritizer.h"
 
+#import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
-#import <GoogleDataTransport/GDTCORStoredEvent.h>
 
 #import "GDTCORTests/Integration/Helpers/GDTCORIntegrationTestUploadPackage.h"
 
 @interface GDTCORIntegrationTestPrioritizer ()
 
 /** Events that are only supposed to be uploaded whilst on wifi. */
-@property(nonatomic) NSMutableSet<GDTCORStoredEvent *> *wifiOnlyEvents;
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *wifiOnlyEvents;
 
 /** Events that can be uploaded on any type of connection. */
-@property(nonatomic) NSMutableSet<GDTCORStoredEvent *> *nonWifiEvents;
+@property(nonatomic) NSMutableSet<GDTCOREvent *> *nonWifiEvents;
 
 /** The queue on which this prioritizer operates. */
 @property(nonatomic) dispatch_queue_t queue;
@@ -43,12 +43,12 @@
         dispatch_queue_create("com.google.GDTCORIntegrationTestPrioritizer", DISPATCH_QUEUE_SERIAL);
     _wifiOnlyEvents = [[NSMutableSet alloc] init];
     _nonWifiEvents = [[NSMutableSet alloc] init];
-    [[GDTCORRegistrar sharedInstance] registerPrioritizer:self target:kGDTCORIntegrationTestTarget];
+    [[GDTCORRegistrar sharedInstance] registerPrioritizer:self target:kGDTCORTargetTest];
   }
   return self;
 }
 
-- (void)prioritizeEvent:(GDTCORStoredEvent *)event {
+- (void)prioritizeEvent:(GDTCOREvent *)event {
   dispatch_async(_queue, ^{
     if (event.qosTier == GDTCOREventQoSWifiOnly) {
       [self.wifiOnlyEvents addObject:event];
@@ -58,9 +58,10 @@
   });
 }
 
-- (GDTCORUploadPackage *)uploadPackageWithConditions:(GDTCORUploadConditions)conditions {
+- (GDTCORUploadPackage *)uploadPackageWithTarget:(GDTCORTarget)target
+                                      conditions:(GDTCORUploadConditions)conditions {
   __block GDTCORIntegrationTestUploadPackage *uploadPackage =
-      [[GDTCORIntegrationTestUploadPackage alloc] initWithTarget:kGDTCORIntegrationTestTarget];
+      [[GDTCORIntegrationTestUploadPackage alloc] initWithTarget:target];
   dispatch_sync(_queue, ^{
     if ((conditions & GDTCORUploadConditionWifiData) == GDTCORUploadConditionWifiData) {
       uploadPackage.events = [self.wifiOnlyEvents setByAddingObjectsFromSet:self.nonWifiEvents];
@@ -71,9 +72,12 @@
   return uploadPackage;
 }
 
+- (void)saveState {
+}
+
 - (void)packageDelivered:(GDTCORUploadPackage *)package successful:(BOOL)successful {
   dispatch_async(_queue, ^{
-    for (GDTCORStoredEvent *event in package.events) {
+    for (GDTCOREvent *event in package.events) {
       [self.wifiOnlyEvents removeObject:event];
       [self.nonWifiEvents removeObject:event];
     }

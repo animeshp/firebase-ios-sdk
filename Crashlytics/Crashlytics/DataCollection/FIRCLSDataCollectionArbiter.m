@@ -20,8 +20,7 @@
 #import "FBLPromises.h"
 #endif
 
-#import <FirebaseCore/FIRApp.h>
-
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 #import "FIRCLSUserDefaults.h"
 
 // The legacy data collection setting allows Fabric customers to turn off auto-

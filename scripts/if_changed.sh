@@ -46,14 +46,14 @@ elif [[ -z "$TRAVIS_COMMIT_RANGE" ]]; then
 else
   case "$PROJECT-$METHOD" in
     Firebase-pod-lib-lint) # Combines Firebase-* and InAppMessaging*
-      check_changes '^(Firebase/Auth|Firebase/Database|Firebase/DynamicLinks|'\
-'Firebase/Messaging|FirebaseStorage|GoogleUtilities|Interop|Example|'\
+      check_changes '^(FirebaseAuth|Firebase/Database|Firebase/DynamicLinks|'\
+'FirebaseMessaging|FirebaseStorage|GoogleUtilities|Interop|Example|'\
 'FirebaseAnalyticsInterop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
 'FirebaseCoreDiagnostics.podspec|FirebaseCoreDiagnosticsInterop.podspec|'\
 'FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|FirebaseMessaging.podspec|'\
-'FirebaseStorage.podspec|Firebase/InAppMessagingDisplay|'\
-'InAppMessagingDisplay|InAppMessaging|Firebase/InAppMessaging|'\
-'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|'\
+'FirebaseStorage.podspec|'\
+'InAppMessaging|Firebase/InAppMessaging|'\
+'FirebaseInAppMessaging.podspec|'\
 'Firebase/InstanceID|FirebaseInstanceID.podspec|'\
 'FirebaseInstallations'\
 'FirebaseCrashlytics.podspec)'\
@@ -74,16 +74,17 @@ else
       ;;
 
     Auth-*)
-      check_changes '^(FirebaseCore|Firebase/Auth|Example/Auth|GoogleUtilities|FirebaseAuth.podspec)'
+      check_changes '^(FirebaseCore|FirebaseAuth|GoogleUtilities|FirebaseAuth.podspec)'
       ;;
 
     Crashlytics-*)
       check_changes '^(FirebaseCore|GoogleUtilities|Crashlytics|FirebaseCrashlytics.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
-'FirebaseInstallations)'
+'FirebaseInstallations|GoogleDataTransport|GoogleDataTransport.podspec|GoogleDataTransportCCTSupport|GoogleDataTransportCCTSupport.podspec)'
       ;;
 
     Database-*)
-      check_changes '^(FirebaseCore|Firebase/Database|Example/Database|GoogleUtilities|FirebaseDatabase.podspec)'
+      check_changes '^(FirebaseCore|Firebase/Database|Example/Database|GoogleUtilities|FirebaseDatabase.podspec|'\
+'scripts/run_database_emulator.sh)'
       ;;
 
     DynamicLinks-*)
@@ -103,8 +104,8 @@ else
       ;;
 
     InAppMessaging-*)
-      check_changes '^(FirebaseInAppMessaging|FirebaseInAppMessagingDisplay|'\
-'FirebaseInAppMessaging.podspec|FirebaseInAppMessagingDisplay.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
+      check_changes '^(FirebaseInAppMessaging|'\
+'FirebaseInAppMessaging.podspec|Firebase/InstanceID|FirebaseInstanceID.podspec|'\
 'FirebaseInstallations)'
       ;;
 
@@ -115,11 +116,12 @@ else
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
       check_changes '^(Firestore|FirebaseFirestore.podspec|FirebaseFirestoreSwift.podspec|'\
-'GoogleUtilities)'
+'GoogleUtilities|scripts/run_firestore_emulator.sh)'
       ;;
 
     Firestore-cmake)
-      check_changes '^(Firestore/(core|third_party)|cmake|FirebaseCore|GoogleUtilities)'
+      check_changes '^(Firestore/(core|third_party)|cmake|FirebaseCore|GoogleUtilities|)'\
+'scripts/run_firestore_emulator.sh)'
       ;;
 
     GoogleDataTransport-*)
@@ -128,7 +130,7 @@ else
       ;;
 
     Messaging-*)
-      check_changes '^(FirebaseCore|Firebase/Messaging|Example/Messaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID|'\
+      check_changes '^(FirebaseCore|FirebaseMessaging|GoogleUtilities|FirebaseMessaging.podspec|Firebase/InstanceID|'\
 'FirebaseInstanceID.podspec|FirebaseInstallations)'
       ;;
 
@@ -158,6 +160,7 @@ fi
 check_changes '^.travis.yml'
 check_changes '^Gemfile.lock'
 check_changes '^scripts/(build|install_prereqs|pod_lib_lint).(rb|sh)'
+check_changes '^scripts/xcresult_logs.py'
 
 if [[ "$run" == true ]]; then
   "$@"

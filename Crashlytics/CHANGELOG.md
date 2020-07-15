@@ -1,3 +1,36 @@
+# v4.1.1
+
+- [fixed] Fixed a crash that could occur if certain plist fields necessary to create Crashlytics records were missing at runtime. Also added some diagnostic logging to make the issue cause more explicit (#5565).
+
+# v4.1.0
+
+- [fixed] Fixed unchecked `malloc`s in Crashlytics (#5428).
+- [fixed] Fixed an instance of undefined behavior when loading files from disk (#5454).
+
+# v4.0.0
+
+ - [changed] The Firebase Crashlytics SDK is now generally available.
+
+# v4.0.0-beta.7
+
+ - [changed] Increased network timeout for symbol uploads to improve reliability on limited internet connections. (#5228)
+
+# v4.0.0-beta.6
+
+ - [added] Added a new API to record custom exception models and stacktraces to Crashlytics. This is a replacement for the `recordCustomException` API that existed in the Fabric Crashlytics SDK (#5055)
+ - [fixed] Fixed an issue with the `sendUnsentReports` API where reports wouldn't be uploaded until the method was called twice in specific instances (#5060)
+ - [changed] Changed Crashlytics to use GoogleDataTransport to upload crashes (#4989)
+ - [changed] Changed the origin that Crashlytics uses to register Crash events for Crash Free Users. Ensure you have installed Firebase Analytics version 6.3.1 or above (#5030)
+
+# v4.0.0-beta.5
+
+- [changed] Changed two endpoints in the Firebase Crashlytics SDK with no expected end-user impact (#4953, #4988).
+
+# v4.0.0-beta.4
+
+- [fixed] Fixed symbol collisions with the legacy Fabric Crashlytics SDK and added a warning not to include both (#4753, #4755)
+- [fixed] Added crash prevention checks (#4661)
+
 # v4.0.0-beta.3
 
 - [fixed] Fixed an import declaration for installing Crashlytics. Previously, the declaration caused a compile error when you installed using CocoaPods with the `generate_multiple_pods_project` flag set to true (#4786)

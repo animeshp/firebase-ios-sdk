@@ -28,6 +28,11 @@ more details and additional installation methods.
 - Create a Cartfile with a **subset** of the following components - choosing the
 Firebase components that you want to include in your app. Note that
 **FirebaseAnalyticsBinary** must always be included.
+
+- Starting with the 6.23.0 release, if you're using FirebaseMessaging,
+FirebasePerformance, FirebaserRemoteConfig,
+FirebaseABTesting, FirebaseInAppMessaging, or FirebaseML,
+**FirebaseProtobufBinary** must also be included.
 ```
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
@@ -40,7 +45,6 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.j
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFunctionsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseGoogleSignInBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInAppMessagingBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInAppMessagingDisplayBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLModelInterpreterBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLNLLanguageIDBinary.json"
@@ -55,6 +59,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionLabelMode
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionObjectDetectionBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionTextModelBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseProtobufBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
 ```
@@ -69,8 +74,6 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 - If you're including a Firebase component that has resources, copy its bundles
     into the Xcode project and make sure they're added to the
     `Copy Bundle Resources` Build Phase :
-    - For Firestore:
-        - ./Carthage/Build/iOS/gRPC-C++.framework/Resources/gRPCCertificates-Cpp.bundle
     - For FirebaseMLVisionFaceModel:
         - ./Carthage/Build/iOS/FaceDetector.framework/GoogleMVFaceDetectorResources.bundle
     - For FirebaseMLVisionTextModel:
@@ -83,12 +86,19 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
  use, for example: libc++.tbd, sqlite3.tbd, StoreKit.framework, etc. For more information,
  [go here](https://github.com/firebase/firebase-ios-sdk/issues/9#issuecomment-387947163).
 
-- For Crashlytics:
-    - To automatically upload your app's symbols so your app's crashes are symbolicated, download
+- For Crashlytics, do the following steps to automatically upload your app's symbols so your app's crashes are symbolicated:
+    - Download
      [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols)
      and [run](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/run).
-     Then follow the [Crashlytics documentation](https://firebase.google.com/docs/crashlytics/get-started-new-sdk?platform=ios)
-     to add a new run script phase in your Xcode project.
+    - Put these in the directory where your `.xcodeproj` file lives, eg. `scripts/run` and `scripts/upload-symbols`
+    - Make sure that the files are executable - `chmod +x scripts/run scripts/upload-symbols`
+    - Open your project in Xcode, then select its project file in the left navigator.
+    - From the **Select a project or target** dropdown, select your main build target.
+    - Select the **Build Phases** tab, then click "+" add > **New Run Script Phase**.
+    - Paste the following into your new Run Script, replacing "scripts" with whatever you named your folder: `"${PROJECT_DIR}/scripts/run"`
+    - Add the following dependencies as **Input Files** to the Run Script:
+       - `${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}`
+       - `${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}`
 
 ## Versioning
 

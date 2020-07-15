@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransportCCTSupport'
-  s.version          = '1.3.1'
+  s.version          = '3.2.0'
   s.summary          = 'Support library for the GoogleDataTransport CCT backend target.'
 
 
@@ -22,7 +22,7 @@ Support library to provide event prioritization and uploading for the GoogleData
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
-  # To develop or run the tests, >= 1.8.0.beta.1 must be installed.
+  # To develop or run the tests, >= 1.8.0 must be installed.
   s.cocoapods_version = '>= 1.4.0'
 
   s.static_framework = true
@@ -30,11 +30,15 @@ Support library to provide event prioritization and uploading for the GoogleData
 
   s.source_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/**/*'
   s.private_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Private/*.h'
+  s.public_header_files = 'GoogleDataTransportCCTSupport/GDTCCTLibrary/Public/*.h'
+  s.ios.frameworks = 'SystemConfiguration', 'CoreTelephony'
+  s.osx.frameworks = 'SystemConfiguration', 'CoreTelephony'
+  s.tvos.frameworks = 'SystemConfiguration'
 
   s.libraries = ['z']
 
-  s.dependency 'GoogleDataTransport', '~> 3.3'
-  s.dependency 'nanopb', '~> 0.3.901'
+  s.dependency 'GoogleDataTransport', '~> 6.1'
+  s.dependency 'nanopb', '~> 1.30905.0'
 
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransportCCTSupport/"'

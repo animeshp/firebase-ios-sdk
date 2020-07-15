@@ -1,3 +1,20 @@
+# 2020-06 -- 4.4.0
+- [changed] Standardize FirebaseCore import headers. (#5758)
+
+# 2020-04 -- 4.3.4
+- [changed] Internal cleanup and remove repetitive local notification. (#5339)
+
+# 2020-03 -- 4.3.3
+- [fixed] Fixed provisioning profile location for catalyst. (#5048)
+- [fixed] Fixed crash when passing a nil handler to deleteToken request. (#5247)
+- [changed] Remove obsolete logic to improve performance and reduce keychain operations. (#5211, #5237)
+
+# 2020-02 -- 4.3.2
+- [changed] Removed unused files (#4881).
+
+# 2020-02 -- 4.3.1
+- [changed] Stop collecting logging ID as it is not used anymore.(#4444)
+
 # 2020-01 -- 4.3.0
 - [added] Added watchOS support for InstanceID (#4016)
 - [added] Added a new dependency on the [Firebase Installations SDK](../../FirebaseInstallations/CHANGELOG.md). The Firebase Installations SDK introduces the [Firebase Installations API](https://console.cloud.google.com/apis/library/firebaseinstallations.googleapis.com). Developers that use API-restrictions for their API-Keys may experience blocked requests (https://stackoverflow.com/questions/58495985/). A solution is available [here](../../FirebaseInstallations/API_KEY_RESTRICTIONS.md). (#4533)

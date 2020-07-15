@@ -14,10 +14,8 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
-#import <FirebaseCore/FIRComponentContainerInternal.h>
-#import <FirebaseCore/FIROptions.h>
+#import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
@@ -130,6 +128,36 @@
   id<FIRTestProtocolEagerCached> eagerInstance2 =
       FIR_COMPONENT(FIRTestProtocolEagerCached, container);
   XCTAssertNotEqual(eagerInstance1, eagerInstance2);
+}
+
+- (void)testRemoveAllComponents {
+  FIRComponentContainer *container =
+      [self containerWithRegistrants:@ [[FIRTestClass class], [FIRTestClassCached class],
+                                        [FIRTestClassEagerCached class],
+                                        [FIRTestClassCachedWithDep class]]];
+
+  // Retrieve an instance of FIRTestClassCached to ensure it's cached.
+  id<FIRTestProtocolCached> cachedInstance1 = FIR_COMPONENT(FIRTestProtocolCached, container);
+  XCTAssertNotNil(cachedInstance1);
+  id<FIRTestProtocolEagerCached> eagerInstance1 =
+      FIR_COMPONENT(FIRTestProtocolEagerCached, container);
+  XCTAssertNotNil(eagerInstance1);
+
+  // FIRTestClassEagerCached and FIRTestClassCached instances should be cached at this point.
+  XCTAssertTrue(container.cachedInstances.count == 2);
+
+  // Remove all components.
+  [container removeAllComponents];
+
+  // Remove the instances.
+  [container removeAllCachedInstances];
+
+  // Verify that no new instances are created.
+  id<FIRTestProtocolCached> cachedInstance2 = FIR_COMPONENT(FIRTestProtocolCached, container);
+  XCTAssertNil(cachedInstance2);
+  id<FIRTestProtocolEagerCached> eagerInstance2 =
+      FIR_COMPONENT(FIRTestProtocolEagerCached, container);
+  XCTAssertNil(eagerInstance2);
 }
 
 #pragma mark - Instantiation Tests

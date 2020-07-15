@@ -1,11 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseABTesting'
-  s.version          = '3.1.2'
-  s.summary          = 'Firebase ABTesting for iOS'
+  s.version          = '3.3.0'
+  s.summary          = 'Firebase ABTesting'
 
   s.description      = <<-DESC
 A/B testing is a Firebase service that lets you run experiments across users of
-your iOS and Android apps. It lets you learn how well one or more changes to
+your mobile apps. It lets you learn how well one or more changes to
 your app work with a smaller set of users before you roll out changes to all
 users. You can run experiments to find the most effective ways to use
 Firebase Cloud Messaging and Firebase Remote Config in your app.
@@ -29,7 +29,11 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.prefix_header_file = false
 
   base_dir = "FirebaseABTesting/Sources/"
-  s.source_files = base_dir + '**/*.[mh]'
+  s.source_files = [
+    base_dir + '**/*.[mh]',
+   'Interop/Analytics/Public/*.h',
+   'FirebaseCore/Sources/Private/*.h',
+  ]
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/*.h', base_dir + 'Protos/developers/mobile/abt/proto/*.h'
   s.private_header_files = base_dir + 'Protos/developers/mobile/abt/proto/*.h'
@@ -40,8 +44,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
       'FIRABTesting_VERSION=' + String(s.version),
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.3'
-  s.dependency 'FirebaseCore', '~> 6.1'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'Protobuf', '~> 3.9', '>= 3.9.2'
 
   s.test_spec 'unit' do |unit_tests|

@@ -12,27 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO: Remove this class after the uploading of reports via GoogleDataTransport is no longer an
+// experiment
+
 #import "FIRCLSInternalReport.h"
 
 #import "FIRCLSFile.h"
 #import "FIRCLSFileManager.h"
 #import "FIRCLSLogger.h"
 
-NSString *const CLSReportBinaryImageFile = @"binary_images.clsrecord";
-NSString *const CLSReportExceptionFile = @"exception.clsrecord";
-NSString *const CLSReportCustomExceptionAFile = @"custom_exception_a.clsrecord";
-NSString *const CLSReportCustomExceptionBFile = @"custom_exception_b.clsrecord";
-NSString *const CLSReportSignalFile = @"signal.clsrecord";
+NSString *const FIRCLSReportBinaryImageFile = @"binary_images.clsrecord";
+NSString *const FIRCLSReportExceptionFile = @"exception.clsrecord";
+NSString *const FIRCLSReportCustomExceptionAFile = @"custom_exception_a.clsrecord";
+NSString *const FIRCLSReportCustomExceptionBFile = @"custom_exception_b.clsrecord";
+NSString *const FIRCLSReportSignalFile = @"signal.clsrecord";
 #if CLS_MACH_EXCEPTION_SUPPORTED
-NSString *const CLSReportMachExceptionFile = @"mach_exception.clsrecord";
+NSString *const FIRCLSReportMachExceptionFile = @"mach_exception.clsrecord";
 #endif
-NSString *const CLSReportMetadataFile = @"metadata.clsrecord";
-NSString *const CLSReportErrorAFile = @"errors_a.clsrecord";
-NSString *const CLSReportErrorBFile = @"errors_b.clsrecord";
-NSString *const CLSReportInternalIncrementalKVFile = @"internal_incremental_kv.clsrecord";
-NSString *const CLSReportInternalCompactedKVFile = @"internal_compacted_kv.clsrecord";
-NSString *const CLSReportUserIncrementalKVFile = @"user_incremental_kv.clsrecord";
-NSString *const CLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord";
+NSString *const FIRCLSReportMetadataFile = @"metadata.clsrecord";
+NSString *const FIRCLSReportErrorAFile = @"errors_a.clsrecord";
+NSString *const FIRCLSReportErrorBFile = @"errors_b.clsrecord";
+NSString *const FIRCLSReportLogAFile = @"log_a.clsrecord";
+NSString *const FIRCLSReportLogBFile = @"log_b.clsrecord";
+NSString *const FIRCLSReportInternalIncrementalKVFile = @"internal_incremental_kv.clsrecord";
+NSString *const FIRCLSReportInternalCompactedKVFile = @"internal_compacted_kv.clsrecord";
+NSString *const FIRCLSReportUserIncrementalKVFile = @"user_incremental_kv.clsrecord";
+NSString *const FIRCLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord";
 
 @interface FIRCLSInternalReport () {
   NSString *_identifier;
@@ -73,7 +78,7 @@ NSString *const CLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord";
  * Initializes a pre-existing report, i.e. one with metadata on the file system.
  */
 - (instancetype)initWithPath:(NSString *)path {
-  NSString *metadataPath = [path stringByAppendingPathComponent:CLSReportMetadataFile];
+  NSString *metadataPath = [path stringByAppendingPathComponent:FIRCLSReportMetadataFile];
   NSString *identifier = [[[[self.class readFIRCLSFileAtPath:metadataPath] objectAtIndex:0]
       objectForKey:@"identity"] objectForKey:@"session_id"];
   if (!identifier) {
@@ -92,43 +97,49 @@ NSString *const CLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord";
 }
 
 - (NSString *)metadataPath {
-  return [[self path] stringByAppendingPathComponent:CLSReportMetadataFile];
+  return [[self path] stringByAppendingPathComponent:FIRCLSReportMetadataFile];
 }
 
 - (NSString *)binaryImagePath {
-  return [self pathForContentFile:CLSReportBinaryImageFile];
+  return [self pathForContentFile:FIRCLSReportBinaryImageFile];
 }
 
 #pragma mark - Processing Methods
 - (BOOL)needsToBeSubmitted {
   NSArray *reportFiles = @[
-    CLSReportExceptionFile, CLSReportSignalFile, CLSReportCustomExceptionAFile,
-    CLSReportCustomExceptionBFile,
+    FIRCLSReportExceptionFile, FIRCLSReportSignalFile, FIRCLSReportCustomExceptionAFile,
+    FIRCLSReportCustomExceptionBFile,
 #if CLS_MACH_EXCEPTION_SUPPORTED
-    CLSReportMachExceptionFile,
+    FIRCLSReportMachExceptionFile,
 #endif
-    CLSReportErrorAFile, CLSReportErrorBFile
+    FIRCLSReportErrorAFile, FIRCLSReportErrorBFile
   ];
   return [self checkExistenceOfAtLeastOnceFileInArray:reportFiles];
 }
 
-- (NSArray *)crashFilenames {
+// These are purposefully in order of precedence. If duplicate data exists
+// in any crash file, the exception file's contents take precedence over the
+// rest, for example
+//
+// Do not change the order of this.
+//
++ (NSArray *)crashFileNames {
   static NSArray *files;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     files = @[
-      CLSReportExceptionFile,
+      FIRCLSReportExceptionFile,
 #if CLS_MACH_EXCEPTION_SUPPORTED
-      CLSReportMachExceptionFile,
+      FIRCLSReportMachExceptionFile,
 #endif
-      CLSReportSignalFile
+      FIRCLSReportSignalFile
     ];
   });
   return files;
 }
 
 - (BOOL)isCrash {
-  NSArray *crashFiles = [self crashFilenames];
+  NSArray *crashFiles = [FIRCLSInternalReport crashFileNames];
   return [self checkExistenceOfAtLeastOnceFileInArray:crashFiles];
 }
 
@@ -147,7 +158,7 @@ NSString *const CLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord";
 }
 
 - (void)enumerateSymbolicatableFilesInContent:(void (^)(NSString *path))block {
-  for (NSString *fileName in [self crashFilenames]) {
+  for (NSString *fileName in [FIRCLSInternalReport crashFileNames]) {
     NSString *path = [self pathForContentFile:fileName];
 
     block(path);
@@ -205,14 +216,14 @@ NSString *const CLSReportUserCompactedKVFile = @"user_compacted_kv.clsrecord";
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
   // try the mach exception first, because it is more common
-  NSDate *date = [self timeFromCrashContentFile:CLSReportMachExceptionFile
+  NSDate *date = [self timeFromCrashContentFile:FIRCLSReportMachExceptionFile
                                     sectionName:@"mach_exception"];
   if (date) {
     return date;
   }
 #endif
 
-  return [self timeFromCrashContentFile:CLSReportSignalFile sectionName:@"signal"];
+  return [self timeFromCrashContentFile:FIRCLSReportSignalFile sectionName:@"signal"];
 }
 
 - (NSDate *)timeFromCrashContentFile:(NSString *)fileName sectionName:(NSString *)sectionName {

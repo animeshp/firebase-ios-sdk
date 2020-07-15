@@ -1,12 +1,12 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '4.2.0'
-  s.summary          = 'Firebase Messaging for iOS'
+  s.version          = '4.5.0'
+  s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
-Firebase Messaging for iOS is a service that allows you to send data from your server to your users'
+Firebase Messaging is a service that allows you to send data from your server to your users'
 iOS device, and also to receive messages from devices on the same connection. The service handles
-all aspects of queueing of messages and delivery to the target iOS application running on the target
+all aspects of queueing of messages and delivery to the target application running on the target
 device, and it is completely free.
                        DESC
 
@@ -28,10 +28,14 @@ device, and it is completely free.
   s.static_framework = true
   s.prefix_header_file = false
 
-  base_dir = "Firebase/Messaging/"
-  s.source_files = base_dir + '**/*.[mh]'
-  s.requires_arc = base_dir + '*.m'
-  s.public_header_files = base_dir + 'Public/*.h'
+  base_dir = "FirebaseMessaging/"
+  s.source_files = [
+    base_dir + 'Sources/**/*.[mh]',
+    'Interop/Analytics/Public/*.h',
+    'FirebaseCore/Sources/Private/*.h',
+  ]
+  s.requires_arc = base_dir + 'Sources/*.m'
+  s.public_header_files = base_dir + 'Sources/Public/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
@@ -45,8 +49,7 @@ device, and it is completely free.
   s.tvos.framework = 'SystemConfiguration'
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.5'
-  s.dependency 'FirebaseCore', '~> 6.6'
+  s.dependency 'FirebaseCore', '~> 6.8'
   s.dependency 'FirebaseInstanceID', '~> 4.3'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 6.5'
   s.dependency 'GoogleUtilities/Reachability', '~> 6.5'
@@ -56,11 +59,18 @@ device, and it is completely free.
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
-    unit_tests.source_files = 'Example/Messaging/Tests/*.{m,h,swift}'
+    unit_tests.source_files = 'FirebaseMessaging/Tests/UnitTests/*.{m,h,swift}'
     unit_tests.requires_app_host = true
     unit_tests.pod_target_xcconfig = {
      'CLANG_ENABLE_OBJC_WEAK' => 'YES'
     }
     unit_tests.dependency 'OCMock'
+  end
+
+  s.test_spec 'integration' do |int_tests|
+    int_tests.platforms = {:ios => '8.0', :osx => '10.11', :tvos => '10.0'}
+    int_tests.source_files = 'FirebaseMessaging/Tests/IntegrationTests/*.swift'
+    int_tests.requires_app_host = true
+    int_tests.resources = 'FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist'
   end
 end

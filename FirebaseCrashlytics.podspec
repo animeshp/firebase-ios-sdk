@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '4.0.0-beta.3'
+  s.version          = '4.2.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -19,9 +19,14 @@ Pod::Spec.new do |s|
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.source_files = 'Crashlytics/Crashlytics/**/*.{c,h,m,mm}',
+  s.source_files = [
+    'Crashlytics/Crashlytics/**/*.{c,h,m,mm}',
+    'Crashlytics/Protogen/**/*.{c,h,m,mm}',
     'Crashlytics/Shared/**/*.{c,h,m,mm}',
-    'Crashlytics/third_party/**/*.{c,h,m,mm}'
+    'Crashlytics/third_party/**/*.{c,h,m,mm}',
+    'FirebaseCore/Sources/Private/*.h',
+    'Interop/Analytics/Public/*.h',
+  ]
 
   s.public_header_files = [
     'Crashlytics/Crashlytics/Public/*.h'
@@ -40,10 +45,12 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 6.6'
-  s.dependency 'FirebaseInstanceID', '~> 4.3'
-  s.dependency 'FirebaseAnalyticsInterop', '~> 1.2'
+  s.dependency 'FirebaseCore', '~> 6.8'
+  s.dependency 'FirebaseInstallations', '~> 1.1'
   s.dependency 'PromisesObjC', '~> 1.2'
+  s.dependency 'GoogleDataTransport', '~> 6.1'
+  s.dependency 'GoogleDataTransportCCTSupport', '~> 3.1'
+  s.dependency 'nanopb', '~> 1.30905.0'
 
   s.libraries = 'c++', 'z'
   s.frameworks = 'Security', 'SystemConfiguration'
@@ -52,7 +59,10 @@ Pod::Spec.new do |s|
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'DISPLAY_VERSION=' + s.version.to_s + ' ' +
-      'CLS_SDK_NAME="Crashlytics iOS SDK" ',
+      'CLS_SDK_NAME="Crashlytics iOS SDK" ' +
+      # For nanopb:
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 
@@ -60,7 +70,10 @@ Pod::Spec.new do |s|
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'DISPLAY_VERSION=' + s.version.to_s + ' ' +
-      'CLS_SDK_NAME="Crashlytics Mac SDK" ',
+      'CLS_SDK_NAME="Crashlytics Mac SDK" ' +
+      # For nanopb:
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 
@@ -68,7 +81,10 @@ Pod::Spec.new do |s|
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'DISPLAY_VERSION=' + s.version.to_s + ' ' +
-      'CLS_SDK_NAME="Crashlytics tvOS SDK" ',
+      'CLS_SDK_NAME="Crashlytics tvOS SDK" ' +
+      # For nanopb:
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_LD_FLAGS' => '$(inherited) -sectcreate __TEXT __info_plist'
   }
 

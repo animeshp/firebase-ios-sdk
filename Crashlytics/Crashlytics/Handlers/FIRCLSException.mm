@@ -16,13 +16,15 @@
 
 #include "FIRCLSException.h"
 
+#import "FIRExceptionModel_Private.h"
+#import "FIRStackFrame_Private.h"
+
 #include "FIRCLSApplication.h"
 #include "FIRCLSFile.h"
 #include "FIRCLSGlobals.h"
 #include "FIRCLSHandler.h"
 #import "FIRCLSLogger.h"
 #include "FIRCLSProcess.h"
-#import "FIRCLSStackFrame.h"
 #import "FIRCLSUserLogging.h"
 #import "FIRCLSUtility.h"
 
@@ -76,18 +78,13 @@ void FIRCLSExceptionInitialize(FIRCLSExceptionReadOnlyContext *roContext,
   rwContext->customExceptionCount = 0;
 }
 
-#if 0
-// This bit of code might be useful at some point. But, currently it isn't needed.
-static void FIRCLSExceptionUninstallHandlers(void) {
-    std::set_terminate(_clsContext.readonly->exception.originalTerminateHandler);
+void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel) {
+  const char *name = [[exceptionModel.name copy] UTF8String];
+  const char *reason = [[exceptionModel.reason copy] UTF8String];
 
-#if !TARGET_OS_IPHONE
-    Method m = FIRCLSGetNSApplicationReportExceptionMethod();
-
-    method_setImplementation(m, (IMP)FIRCLSOriginalNSExceptionReportExceptionFunction());
-#endif
+  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy],
+                        NO);
 }
-#endif
 
 void FIRCLSExceptionRecordNSException(NSException *exception) {
   FIRCLSSDKLog("Recording an NSException\n");
@@ -106,14 +103,14 @@ void FIRCLSExceptionRecordNSException(NSException *exception) {
   NSMutableArray *frames = [NSMutableArray new];
 
   for (NSNumber *address in returnAddresses) {
-    [frames addObject:[FIRCLSStackFrame stackFrameWithAddress:[address unsignedIntegerValue]]];
+    [frames addObject:[FIRStackFrame stackFrameWithAddress:[address unsignedIntegerValue]]];
   }
 
   FIRCLSExceptionRecord(FIRCLSExceptionTypeObjectiveC, [name UTF8String], [reason UTF8String],
                         frames, YES);
 }
 
-static void FIRCLSExceptionRecordFrame(FIRCLSFile *file, FIRCLSStackFrame *frame) {
+static void FIRCLSExceptionRecordFrame(FIRCLSFile *file, FIRStackFrame *frame) {
   FIRCLSFileWriteHashStart(file);
 
   FIRCLSFileWriteHashEntryUint64(file, "pc", [frame address]);
@@ -163,7 +160,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
                           FIRCLSExceptionType type,
                           const char *name,
                           const char *reason,
-                          NSArray<FIRCLSStackFrame *> *frames) {
+                          NSArray<FIRStackFrame *> *frames) {
   FIRCLSFileWriteSectionStart(file, "exception");
 
   FIRCLSFileWriteHashStart(file);
@@ -177,7 +174,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
     FIRCLSFileWriteHashKey(file, "frames");
     FIRCLSFileWriteArrayStart(file);
 
-    for (FIRCLSStackFrame *frame in frames) {
+    for (FIRStackFrame *frame in frames) {
       FIRCLSExceptionRecordFrame(file, frame);
     }
 
@@ -192,7 +189,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
 void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char *name,
                            const char *reason,
-                           NSArray<FIRCLSStackFrame *> *frames,
+                           NSArray<FIRStackFrame *> *frames,
                            BOOL attemptDelivery) {
   if (!FIRCLSContextIsInitialized()) {
     return;
@@ -204,8 +201,8 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
 
   // exceptions can happen on multiple threads at the same time
   if (native) {
-    dispatch_sync(_clsExceptionQueue, ^{
-      const char *path = _clsContext.readonly->exception.path;
+    dispatch_sync(_firclsExceptionQueue, ^{
+      const char *path = _firclsContext.readonly->exception.path;
       FIRCLSFile file;
 
       if (!FIRCLSFileInitWithPath(&file, path, false)) {
@@ -226,11 +223,11 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
       }
     });
   } else {
-    FIRCLSUserLoggingWriteAndCheckABFiles(&_clsContext.readonly->logging.customExceptionStorage,
-                                          &_clsContext.writable->logging.activeCustomExceptionPath,
-                                          ^(FIRCLSFile *file) {
-                                            FIRCLSExceptionWrite(file, type, name, reason, frames);
-                                          });
+    FIRCLSUserLoggingWriteAndCheckABFiles(
+        &_firclsContext.readonly->logging.customExceptionStorage,
+        &_firclsContext.writable->logging.activeCustomExceptionPath, ^(FIRCLSFile *file) {
+          FIRCLSExceptionWrite(file, type, name, reason, frames);
+        });
   }
 
   FIRCLSSDKLog("Finished recording an exception structure\n");
@@ -303,7 +300,7 @@ static void FIRCLSCatchAndRecordActiveException(std::type_info *typeInfo) {
 static void FIRCLSTerminateHandler(void) {
   FIRCLSSDKLog("C++ terminate handler invoked\n");
 
-  void (*handler)(void) = _clsContext.readonly->exception.originalTerminateHandler;
+  void (*handler)(void) = _firclsContext.readonly->exception.originalTerminateHandler;
   if (handler == FIRCLSTerminateHandler) {
     FIRCLSSDKLog("Error: original handler was set recursively\n");
     handler = NULL;
@@ -354,7 +351,7 @@ void FIRCLSExceptionCheckHandlers(void *delegate) {
   }
 #endif
 
-  if (_clsContext.readonly->debuggerAttached) {
+  if (_firclsContext.readonly->debuggerAttached) {
     return;
   }
 
@@ -400,7 +397,7 @@ static Method FIRCLSGetNSApplicationReportExceptionMethod(void) {
 
 static NSApplicationReportExceptionFunction FIRCLSOriginalNSExceptionReportExceptionFunction(void) {
   return (NSApplicationReportExceptionFunction)
-      _clsContext.readonly->exception.originalNSApplicationReportException;
+      _firclsContext.readonly->exception.originalNSApplicationReportException;
 }
 
 void FIRCLSNSApplicationReportException(id self, SEL cmd, NSException *exception) {

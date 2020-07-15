@@ -14,10 +14,10 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import "FirebaseCore/Sources/FIRVersion.h"
+#import "FirebaseCore/Sources/Private/FIRAppInternal.h"
+#import "FirebaseCore/Sources/Private/FIROptionsInternal.h"
 
 extern NSString *const kFIRIsMeasurementEnabled;
 extern NSString *const kFIRIsAnalyticsCollectionEnabled;
@@ -576,6 +576,12 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testVersionFormat {
+  // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  __unused NSString *libraryVersion = options.libraryVersionID;
+  options = nil;
+
   NSRegularExpression *sLibraryVersionRegex =
       [NSRegularExpression regularExpressionWithPattern:@"^[0-9]{8,}$" options:0 error:NULL];
   NSUInteger numberOfMatches =
@@ -587,6 +593,13 @@ extern NSString *const kFIRLibraryVersionID;
 
 // TODO: The version test will break when the Firebase major version hits 10.
 - (void)testVersionConsistency {
+  // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  __unused NSString *libraryVersion = options.libraryVersionID;
+  options = nil;
+
+  // Now `kFIRLibraryVersionID` is assigned, test that it is formatted correctly.
   const char *versionString = [kFIRLibraryVersionID UTF8String];
   int major = versionString[0] - '0';
   int minor = (versionString[1] - '0') * 10 + versionString[2] - '0';
@@ -598,6 +611,12 @@ extern NSString *const kFIRLibraryVersionID;
 // Repeat test with more Objective-C.
 // TODO: The version test will break when the Firebase major version hits 10.
 - (void)testVersionConsistency2 {
+  // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  __unused NSString *libraryVersion = options.libraryVersionID;
+  options = nil;
+
   NSRange major = NSMakeRange(0, 1);
   NSRange minor = NSMakeRange(1, 2);
   NSRange patch = NSMakeRange(3, 2);

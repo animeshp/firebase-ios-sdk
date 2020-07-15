@@ -1,3 +1,36 @@
+# v3.1.0
+- watchOS extension and independent apps now supported. (#4292)
+- iOS extensions better supported.
+- nanopb dependency incremented to 0.3.9.5.
+
+# v3.0.0
+- Internal refactor to change storage to a protocol.
+
+# v2.0.3
+- Synchronize prioritizer property access using a new method. (#5312)
+
+# v2.0.2
+- Remove usage of memcpy and convert calls from malloc to calloc.
+
+# v2.0.1
+- Don't attempt to make NSData out of a nil file URL. (#5088)
+- Fix deprecation warnings. (#5086)
+- Prioritizer will now save state between app restarts.
+- Uploader will retry more often in more failure cases.
+
+# v2.0.0
+- Adds a sentinel value to GDTCOREvent's custom params to signal collection
+of current network info to be associated with some event. This is required
+for Firebase Performance Monitoring in the future.
+
+# v1.4.1
+- Fixed a bug that would manifest if a proto ended up being > 16,320 bytes.
+- Fix an Xcode 11.4 analyze error. (#4863)
+- Now checks the result of malloc. (#4871)
+
+# v1.4.0
+- Added the CSH backend and consolidated the CCT, FLL, and CSH backends.
+
 # v1.3.1
 - Adds compression to requests to CCT.
 - Requests going to the FLL backend will only use compressed data when smaller.

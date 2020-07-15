@@ -18,6 +18,7 @@
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
@@ -28,28 +29,30 @@
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/core/event_manager.h"
-#include "Firestore/core/src/firebase/firestore/core/sync_engine.h"
-#include "Firestore/core/src/firebase/firestore/local/index_free_query_engine.h"
-#include "Firestore/core/src/firebase/firestore/local/local_store.h"
-#include "Firestore/core/src/firebase/firestore/local/persistence.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/remote/remote_store.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/delayed_constructor.h"
-#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/executor.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/log.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
-#include "Firestore/core/src/firebase/firestore/util/string_format.h"
-#include "Firestore/core/src/firebase/firestore/util/to_string.h"
-#include "Firestore/core/test/firebase/firestore/testutil/async_testing.h"
+#include "Firestore/core/src/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/auth/user.h"
+#include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/core/event_manager.h"
+#include "Firestore/core/src/core/listen_options.h"
+#include "Firestore/core/src/core/query_listener.h"
+#include "Firestore/core/src/core/sync_engine.h"
+#include "Firestore/core/src/local/index_free_query_engine.h"
+#include "Firestore/core/src/local/local_store.h"
+#include "Firestore/core/src/local/persistence.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/remote/remote_store.h"
+#include "Firestore/core/src/util/async_queue.h"
+#include "Firestore/core/src/util/delayed_constructor.h"
+#include "Firestore/core/src/util/error_apple.h"
+#include "Firestore/core/src/util/executor.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/string_format.h"
+#include "Firestore/core/src/util/to_string.h"
+#include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "absl/memory/memory.h"
 
 namespace testutil = firebase::firestore::testutil;
@@ -152,6 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTSyncEngineTestDriver {
+  size_t _maxConcurrentLimboResolutions;
+
   std::unique_ptr<Persistence> _persistence;
 
   std::unique_ptr<LocalStore> _localStore;
@@ -170,7 +175,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   // ivar is declared as mutable.
   std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
-  DocumentKeySet _expectedLimboDocuments;
+  DocumentKeySet _expectedActiveLimboDocuments;
+  DocumentKeySet _expectedEnqueuedLimboDocuments;
 
   /** A dictionary for tracking the listens on queries. */
   std::unordered_map<Query, std::shared_ptr<QueryListener>> _queryListeners;
@@ -186,16 +192,13 @@ NS_ASSUME_NONNULL_BEGIN
   int _snapshotsInSyncEvents;
 }
 
-- (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence {
-  return [self initWithPersistence:std::move(persistence)
-                       initialUser:User::Unauthenticated()
-                 outstandingWrites:{}];
-}
-
 - (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence
                         initialUser:(const User &)initialUser
-                  outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites {
+                  outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
+      maxConcurrentLimboResolutions:(size_t)maxConcurrentLimboResolutions {
   if (self = [super init]) {
+    _maxConcurrentLimboResolutions = maxConcurrentLimboResolutions;
+
     // Do a deep copy.
     for (const auto &pair : outstandingWrites) {
       _outstandingWrites[pair.first] = [pair.second mutableCopy];
@@ -217,7 +220,8 @@ NS_ASSUME_NONNULL_BEGIN
         [self](OnlineState onlineState) { _syncEngine->HandleOnlineStateChange(onlineState); });
     ;
 
-    _syncEngine = absl::make_unique<SyncEngine>(_localStore.get(), _remoteStore.get(), initialUser);
+    _syncEngine = absl::make_unique<SyncEngine>(_localStore.get(), _remoteStore.get(), initialUser,
+                                                _maxConcurrentLimboResolutions);
     _remoteStore->set_sync_engine(_syncEngine.get());
     _eventManager.Init(_syncEngine.get());
 
@@ -241,12 +245,20 @@ NS_ASSUME_NONNULL_BEGIN
   return _outstandingWrites;
 }
 
-- (const DocumentKeySet &)expectedLimboDocuments {
-  return _expectedLimboDocuments;
+- (const DocumentKeySet &)expectedActiveLimboDocuments {
+  return _expectedActiveLimboDocuments;
 }
 
-- (void)setExpectedLimboDocuments:(DocumentKeySet)docs {
-  _expectedLimboDocuments = std::move(docs);
+- (void)setExpectedActiveLimboDocuments:(DocumentKeySet)docs {
+  _expectedActiveLimboDocuments = std::move(docs);
+}
+
+- (const DocumentKeySet &)expectedEnqueuedLimboDocuments {
+  return _expectedEnqueuedLimboDocuments;
+}
+
+- (void)setExpectedEnqueuedLimboDocuments:(DocumentKeySet)docs {
+  _expectedEnqueuedLimboDocuments = std::move(docs);
 }
 
 - (void)drainQueue {
@@ -470,8 +482,12 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (std::map<DocumentKey, TargetId>)currentLimboDocuments {
-  return _syncEngine->GetCurrentLimboDocuments();
+- (std::map<DocumentKey, TargetId>)activeLimboDocumentResolutions {
+  return _syncEngine->GetActiveLimboDocumentResolutions();
+}
+
+- (std::deque<DocumentKey>)enqueuedLimboDocumentResolutions {
+  return _syncEngine->GetEnqueuedLimboDocumentResolutions();
 }
 
 - (const std::unordered_map<TargetId, TargetData> &)activeTargets {

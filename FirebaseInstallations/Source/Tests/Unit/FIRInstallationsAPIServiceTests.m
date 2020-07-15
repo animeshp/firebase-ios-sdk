@@ -26,8 +26,7 @@
 #import "FIRInstallationsStoredAuthToken.h"
 #import "FIRInstallationsVersion.h"
 
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRHeartbeatInfo.h>
+#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
 typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 
@@ -56,6 +55,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
                                                               projectID:self.projectID];
   self.heartbeatMock = OCMClassMock([FIRHeartbeatInfo class]);
   OCMStub([self.heartbeatMock heartbeatCodeForTag:@"fire-installations"])
+      .andDo(^(NSInvocation *invocation) {
+        XCTAssertFalse([NSThread isMainThread]);
+      })
       .andReturn(FIRHeartbeatInfoCodeCombined);
 }
 

@@ -1,3 +1,13 @@
+# v1.2.3
+- Remove usage of memcpy and convert calls from malloc to calloc.
+
+# v1.2.2
+- Fixed a bug that would manifest if a proto ended up being > 16,320 bytes.
+- Now checks the result of malloc. (#4872)
+
+# v1.2.0
+- Added basic watchOS support.
+
 # v1.1.2
 - Switch the backend for diagnostics to FLL from CCT.
 

@@ -15,22 +15,23 @@
  */
 
 #import "GDTCORTests/Unit/Helpers/GDTCORTestPrioritizer.h"
-
 #import "GDTCORTests/Unit/Helpers/GDTCORTestUploadPackage.h"
+
+#import <GoogleDataTransport/GDTCOREvent.h>
 
 @implementation GDTCORTestPrioritizer
 
-- (GDTCORUploadPackage *)uploadPackageWithConditions:(GDTCORUploadConditions)conditions {
+- (GDTCORUploadPackage *)uploadPackageWithTarget:(GDTCORTarget)target
+                                      conditions:(GDTCORUploadConditions)conditions {
   if (_uploadPackageWithConditionsBlock) {
     _uploadPackageWithConditionsBlock();
   }
-  GDTCORUploadPackage *uploadPackage =
-      [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
+  GDTCORUploadPackage *uploadPackage = [[GDTCORUploadPackage alloc] initWithTarget:target];
   uploadPackage.events = _events;
   return uploadPackage;
 }
 
-- (void)prioritizeEvent:(GDTCORStoredEvent *)event {
+- (void)prioritizeEvent:(GDTCOREvent *)event {
   if (_prioritizeEventBlock) {
     _prioritizeEventBlock(event);
   }

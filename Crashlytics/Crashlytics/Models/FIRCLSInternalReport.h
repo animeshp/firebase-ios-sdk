@@ -16,21 +16,23 @@
 
 #include "FIRCLSFeatures.h"
 
-extern NSString *const CLSReportBinaryImageFile;
-extern NSString *const CLSReportExceptionFile;
-extern NSString *const CLSReportCustomExceptionAFile;
-extern NSString *const CLSReportCustomExceptionBFile;
-extern NSString *const CLSReportSignalFile;
+extern NSString *const FIRCLSReportBinaryImageFile;
+extern NSString *const FIRCLSReportExceptionFile;
+extern NSString *const FIRCLSReportCustomExceptionAFile;
+extern NSString *const FIRCLSReportCustomExceptionBFile;
+extern NSString *const FIRCLSReportSignalFile;
 #if CLS_MACH_EXCEPTION_SUPPORTED
-extern NSString *const CLSReportMachExceptionFile;
+extern NSString *const FIRCLSReportMachExceptionFile;
 #endif
-extern NSString *const CLSReportErrorAFile;
-extern NSString *const CLSReportErrorBFile;
-extern NSString *const CLSReportMetadataFile;
-extern NSString *const CLSReportInternalIncrementalKVFile;
-extern NSString *const CLSReportInternalCompactedKVFile;
-extern NSString *const CLSReportUserIncrementalKVFile;
-extern NSString *const CLSReportUserCompactedKVFile;
+extern NSString *const FIRCLSReportErrorAFile;
+extern NSString *const FIRCLSReportErrorBFile;
+extern NSString *const FIRCLSReportLogAFile;
+extern NSString *const FIRCLSReportLogBFile;
+extern NSString *const FIRCLSReportMetadataFile;
+extern NSString *const FIRCLSReportInternalIncrementalKVFile;
+extern NSString *const FIRCLSReportInternalCompactedKVFile;
+extern NSString *const FIRCLSReportUserIncrementalKVFile;
+extern NSString *const FIRCLSReportUserCompactedKVFile;
 
 @class FIRCLSFileManager;
 
@@ -42,6 +44,8 @@ extern NSString *const CLSReportUserCompactedKVFile;
 - (instancetype)initWithPath:(NSString *)path;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
+
++ (NSArray *)crashFileNames;
 
 @property(nonatomic, copy, readonly) NSString *directoryName;
 @property(nonatomic, copy) NSString *path;

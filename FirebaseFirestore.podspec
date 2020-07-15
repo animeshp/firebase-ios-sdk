@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '1.10.1'
-  s.summary          = 'Google Cloud Firestore for iOS'
+  s.version          = '1.16.0'
+  s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
 Google Cloud Firestore is a NoSQL document database built for automatic scaling, high performance, and ease of application development.
@@ -25,12 +25,14 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.prefix_header_file = false
 
   s.source_files = [
+    'FirebaseCore/Sources/Private/*.h',
     'Firestore/Source/Public/*.h',
     'Firestore/Source/**/*.{m,mm}',
     'Firestore/Protos/nanopb/**/*.cc',
     'Firestore/Protos/objc/**/*.m',
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
+    'Interop/Auth/Public/*.h',
   ]
   s.preserve_paths = [
     'Firestore/Source/API/*.h',
@@ -49,19 +51,18 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
   s.exclude_files = [
     # Exclude alternate implementations for other platforms
-    'Firestore/core/src/firebase/firestore/api/input_validation_std.cc',
-    'Firestore/core/src/firebase/firestore/remote/connectivity_monitor_noop.cc',
-    'Firestore/core/src/firebase/firestore/util/filesystem_win.cc',
-    'Firestore/core/src/firebase/firestore/util/hard_assert_stdio.cc',
-    'Firestore/core/src/firebase/firestore/util/log_stdio.cc',
-    'Firestore/core/src/firebase/firestore/util/secure_random_openssl.cc'
+    'Firestore/core/src/api/input_validation_std.cc',
+    'Firestore/core/src/remote/connectivity_monitor_noop.cc',
+    'Firestore/core/src/util/filesystem_win.cc',
+    'Firestore/core/src/util/hard_assert_stdio.cc',
+    'Firestore/core/src/util/log_stdio.cc',
+    'Firestore/core/src/util/secure_random_openssl.cc'
   ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
-  s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 6.2'
+  s.dependency 'FirebaseCore', '~> 6.8'
 
-  abseil_version = '0.20190808'
+  abseil_version = '0.20200225.0'
   s.dependency 'abseil/algorithm', abseil_version
   s.dependency 'abseil/base', abseil_version
   s.dependency 'abseil/memory', abseil_version
@@ -70,13 +71,13 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'abseil/time', abseil_version
   s.dependency 'abseil/types', abseil_version
 
-  s.dependency 'gRPC-C++', '0.0.9'
+  s.dependency 'gRPC-C++', '~> 1.28.0'
   s.dependency 'leveldb-library', '~> 1.22'
-  s.dependency 'nanopb', '~> 0.3.901'
+  s.dependency 'nanopb', '~> 1.30905.0'
 
-  s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration'
+  s.ios.frameworks = 'MobileCoreServices', 'SystemConfiguration', 'UIKit'
   s.osx.frameworks = 'SystemConfiguration'
-  s.tvos.frameworks = 'SystemConfiguration'
+  s.tvos.frameworks = 'SystemConfiguration', 'UIKit'
 
   s.library = 'c++'
   s.pod_target_xcconfig = {
@@ -103,8 +104,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # CocoaPods.
   s.prepare_command = <<-CMD
     sed '/^#cmakedefine/ d' \
-        Firestore/core/src/firebase/firestore/util/config.h.in > \
-        Firestore/core/src/firebase/firestore/util/config.h
+        Firestore/core/src/util/config.h.in > \
+        Firestore/core/src/util/config.h
   CMD
 
   s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder -Wno-comma'

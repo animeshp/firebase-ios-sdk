@@ -101,8 +101,14 @@ extension FileManager {
     }
   }
 
-  // Enable a single unique temporary workspace per execution.
-  static let unique: String = UUID().uuidString
+  /// Enable a single unique temporary workspace per execution with a sortable and readable timestamp.
+  private static func timeStamp() -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "YYYY-MM-dd'T'HH-mm-ss"
+    return formatter.string(from: Date())
+  }
+
+  static let unique: String = timeStamp()
 
   /// Returns a deterministic path of a temporary directory for the given name. Note: This does
   /// *not* create the directory if it doesn't exist, merely generates the name for creation.
@@ -120,7 +126,7 @@ extension FileManager {
 
     // Organize all temporary directories into a "ZipRelease" directory.
     let unique = FileManager.unique
-    let zipDir = tempDir.appendingPathComponent("ZipRelease" + unique, isDirectory: true)
+    let zipDir = tempDir.appendingPathComponent("ZipRelease/" + unique, isDirectory: true)
     return zipDir.appendingPathComponent(name, isDirectory: true)
   }
 

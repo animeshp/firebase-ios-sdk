@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2019 Google
+# Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,26 +22,27 @@ import re
 import subprocess
 import string
 
+import six
 
 NO_HEADING = 'PRODUCT HAS NO HEADING'
 
 
 PRODUCTS = {
     'FirebaseABTesting/CHANGELOG.md': '{{ab_testing}}',
-    'Firebase/Auth/CHANGELOG.md': '{{auth}}',
+    'FirebaseAuth/CHANGELOG.md': '{{auth}}',
     'FirebaseCore/CHANGELOG.md': NO_HEADING,
-    'FirebaseCrashlytics/CHANGELOG.md': '{{crashlytics}}',
+    'Crashlytics/CHANGELOG.md': '{{crashlytics}}',
     'Firebase/Database/CHANGELOG.md': '{{database}}',
-    'Firebase/DynamicLinks/CHANGELOG.md': '{{ddls}}',
-    'Firebase/InAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
+    'FirebaseDynamicLinks/CHANGELOG.md': '{{ddls}}',
+    'FirebaseInAppMessaging/CHANGELOG.md': '{{inapp_messaging}}',
+    'FirebaseInstallations/CHANGELOG.md': 'Installations',
     'Firebase/InstanceID/CHANGELOG.md': 'InstanceID',
-    'Firebase/Messaging/CHANGELOG.md': '{{messaging}}',
+    'FirebaseMessaging/CHANGELOG.md': '{{messaging}}',
     'FirebaseStorage/CHANGELOG.md': '{{storage}}',
     'Firestore/CHANGELOG.md': '{{firestore}}',
     'Functions/CHANGELOG.md': '{{cloud_functions}}',
     'FirebaseRemoteConfig/CHANGELOG.md': '{{remote_config}}',
 
-    # 'Firebase/InAppMessagingDisplay/CHANGELOG.md': '?',
     # 'GoogleDataTransport/CHANGELOG.md': '?',
     # 'GoogleDataTransportCCTSupport/CHANGELOG.md': '?',
 }
@@ -78,7 +79,8 @@ def main():
 
 
 def find_local_repo():
-  url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url'])
+  url = six.ensure_text(
+      subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']))
 
   # ssh or https style URL
   m = re.match(r'^(?:git@github\.com:|https://github\.com/)(.*)\.git$', url)

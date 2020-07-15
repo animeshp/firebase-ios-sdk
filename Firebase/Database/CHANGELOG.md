@@ -1,4 +1,15 @@
-# Unreleased
+# v6.2.2
+- [fixed] Addressed crash that prevented the SDK from opening when the versioning file was
+  corrupted. (#5686)
+- [changed] Added internal HTTP header to the WebChannel connection.
+
+
+# v6.2.1
+- [fixed] Fixed documentation typos. (#5406, #5418)
+
+# v6.2.0
+- [feature] Added `ServerValue.increment()` to support atomic field value increments
+  without transactions.
 
 # v6.1.4
 - [changed] Addressed a performance regression introduced in 6.1.3.

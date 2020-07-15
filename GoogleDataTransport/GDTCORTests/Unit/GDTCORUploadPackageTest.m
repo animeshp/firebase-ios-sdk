@@ -17,6 +17,7 @@
 #import "GDTCORTests/Unit/GDTCORTestCase.h"
 
 #import <GoogleDataTransport/GDTCORClock.h>
+#import <GoogleDataTransport/GDTCOREvent.h>
 #import <GoogleDataTransport/GDTCORRegistrar.h>
 #import <GoogleDataTransport/GDTCORUploadPackage.h>
 
@@ -92,11 +93,11 @@
   XCTAssertEqualObjects(uploadPackage.events, uploadPackageCopy.events);
   XCTAssertEqualObjects(uploadPackage, uploadPackageCopy);
 
-  NSMutableSet<GDTCORStoredEvent *> *set = [GDTCOREventGenerator generate3StoredEvents];
+  NSMutableSet<GDTCOREvent *> *set = [GDTCOREventGenerator generate3Events];
   uploadPackage.events = set;
   uploadPackageCopy = [uploadPackage copy];
   XCTAssertNotEqual(uploadPackage, uploadPackageCopy);
-  GDTCORStoredEvent *newEvent = [[GDTCOREventGenerator generate3StoredEvents] anyObject];
+  GDTCOREvent *newEvent = [[GDTCOREventGenerator generate3Events] anyObject];
   [set addObject:newEvent];
   XCTAssertFalse([uploadPackageCopy.events containsObject:newEvent]);
   XCTAssertNotEqualObjects(uploadPackage.events, uploadPackageCopy.events);
@@ -109,26 +110,18 @@
 - (void)testEncoding {
   GDTCORUploadPackage *uploadPackage =
       [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
-  NSMutableSet<GDTCORStoredEvent *> *set = [GDTCOREventGenerator generate3StoredEvents];
+  NSMutableSet<GDTCOREvent *> *set = [GDTCOREventGenerator generate3Events];
   uploadPackage.events = set;
   uploadPackage.handler = self;
-  GDTCORUploadPackage *recreatedPackage;
   NSError *error;
-
-  if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-    NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage
-                                                requiringSecureCoding:YES
-                                                                error:&error];
-    recreatedPackage = [NSKeyedUnarchiver unarchivedObjectOfClass:[GDTCORUploadPackage class]
-                                                         fromData:packageData
-                                                            error:&error];
-    XCTAssertNil(error);
-  } else {
-#if !TARGET_OS_MACCATALYST
-    NSData *packageData = [NSKeyedArchiver archivedDataWithRootObject:uploadPackage];
-    recreatedPackage = [NSKeyedUnarchiver unarchiveObjectWithData:packageData];
-#endif
-  }
+  NSData *packageData = GDTCOREncodeArchive(uploadPackage, nil, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(packageData);
+  error = nil;
+  GDTCORUploadPackage *recreatedPackage = (GDTCORUploadPackage *)GDTCORDecodeArchive(
+      [GDTCORUploadPackage class], nil, packageData, &error);
+  XCTAssertNil(error);
+  XCTAssertNotNil(recreatedPackage);
   XCTAssertEqualObjects(uploadPackage, recreatedPackage);
 }
 
@@ -147,6 +140,17 @@
                                              evaluatedWithObject:self
                                                          handler:nil];
   [self waitForExpectations:@[ expectation ] timeout:30];
+}
+
+/** Tests that the upload package is not leaked by using an NSTimer. */
+- (void)testNoMemoryLeak {
+  __weak GDTCORUploadPackage *weakPackage;
+  @autoreleasepool {
+    GDTCORUploadPackage *package = [[GDTCORUploadPackage alloc] initWithTarget:kGDTCORTargetTest];
+    weakPackage = package;
+    package = nil;
+  }
+  XCTAssertNil(weakPackage);
 }
 
 @end

@@ -19,7 +19,7 @@
 #import "FIRCLSLogger.h"
 
 NSString *const FIRCLSCacheDirectoryName = @"com.crashlytics.data";
-NSString *const FIRCLSCacheVersion = @"v4";
+NSString *const FIRCLSCacheVersion = @"v5";
 
 @interface FIRCLSFileManager () {
   NSString *_rootPath;
@@ -140,20 +140,10 @@ NSString *const FIRCLSCacheVersion = @"v4";
 
     extension = [path pathExtension];
     fullPath = [directory stringByAppendingPathComponent:path];
-
-    block(fullPath, extension);
+    if (block) {
+      block(fullPath, extension);
+    }
   }
-}
-
-- (BOOL)moveItemsFromDirectory:(NSString *)srcDir toDirectory:(NSString *)destDir {
-  __block BOOL success = YES;
-
-  [self enumerateFilesInDirectory:srcDir
-                       usingBlock:^(NSString *filePath, NSString *extension) {
-                         success = success && [self moveItemAtPath:filePath toDirectory:destDir];
-                       }];
-
-  return success;
 }
 
 - (NSNumber *)fileSizeAtPath:(NSString *)path {
@@ -176,7 +166,7 @@ NSString *const FIRCLSCacheVersion = @"v4";
                          [array addObject:filePath];
                        }];
 
-  return array;
+  return [array copy];
 }
 
 #pragma - Properties
@@ -222,12 +212,20 @@ NSString *const FIRCLSCacheVersion = @"v4";
   return [[self structurePath] stringByAppendingPathComponent:@"processing"];
 }
 
+- (NSString *)legacyPreparedPath {
+  return [[self structurePath] stringByAppendingPathComponent:@"prepared-legacy"];
+}
+
 - (NSString *)preparedPath {
   return [[self structurePath] stringByAppendingPathComponent:@"prepared"];
 }
 
 - (NSArray *)activePathContents {
   return [self contentsOfDirectory:[self activePath]];
+}
+
+- (NSArray *)legacyPreparedPathContents {
+  return [self contentsOfDirectory:[self legacyPreparedPath]];
 }
 
 - (NSArray *)preparedPathContents {
@@ -248,6 +246,10 @@ NSString *const FIRCLSCacheVersion = @"v4";
     return NO;
   }
 
+  if (![self createDirectoryAtPath:[self legacyPreparedPath]]) {
+    return NO;
+  }
+
   if (![self createDirectoryAtPath:[self preparedPath]]) {
     return NO;
   }
@@ -265,67 +267,13 @@ NSString *const FIRCLSCacheVersion = @"v4";
   return path;
 }
 
-- (void)enumerateReportsInProcessingDirectoryUsingBlock:(void (^)(FIRCLSInternalReport *report,
-                                                                  NSString *path))block {
-  [self enumerateFilesInDirectory:[self processingPath]
-                       usingBlock:^(NSString *filePath, NSString *extension) {
-                         FIRCLSInternalReport *report =
-                             [FIRCLSInternalReport reportWithPath:filePath];
-
-                         block(report, filePath);
-                       }];
+- (BOOL)moveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath error:(NSError **)error {
+  return [self.underlyingFileManager moveItemAtPath:srcPath toPath:dstPath error:error];
 }
 
-- (void)enumerateFilesInActiveDirectoryUsingBlock:(void (^)(NSString *path,
-                                                            NSString *extension))block {
-  [self enumerateFilesInDirectory:[self activePath] usingBlock:block];
-}
-
-- (void)enumerateFilesInPreparedDirectoryUsingBlock:(void (^)(NSString *path,
-                                                              NSString *extension))block {
-  [self enumerateFilesInDirectory:[self preparedPath] usingBlock:block];
-}
-
-- (BOOL)moveProcessingContentsToPrepared {
-  return [self moveItemsFromDirectory:[self processingPath] toDirectory:[self preparedPath]];
-}
-
-- (BOOL)movePendingToProcessing {
-  return [self moveItemsFromDirectory:[self pendingPath] toDirectory:[self processingPath]];
-}
-
-- (BOOL)removeContentsOfProcessingPath {
-  return [self removeContentsOfDirectoryAtPath:[self processingPath]];
-}
-
-- (BOOL)removeContentsOfPendingPath {
-  return [self removeContentsOfDirectoryAtPath:[self pendingPath]];
-}
-
-- (BOOL)removeContentsOfAllPaths {
-  BOOL success = YES;
-
-  // We want to call all of these methods, even if some fail, and return
-  // NO if any fail. This turned out to be slightly tricky to do in more
-  // compact forms, so I did it the simple but verbose way.
-
-  if (![self removeContentsOfProcessingPath]) {
-    success = NO;
-  }
-
-  if (![self removeContentsOfPendingPath]) {
-    success = NO;
-  }
-
-  if (![self removeContentsOfDirectoryAtPath:self.preparedPath]) {
-    success = NO;
-  }
-
-  if (![self removeContentsOfDirectoryAtPath:self.activePath]) {
-    success = NO;
-  }
-
-  return success;
+// Wrapper over NSData so the method can be mocked for unit tests
+- (NSData *)dataWithContentsOfFile:(NSString *)path {
+  return [NSData dataWithContentsOfFile:path];
 }
 
 @end

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleDataTransport'
-  s.version          = '3.3.1'
+  s.version          = '6.2.1'
   s.summary          = 'Google iOS SDK data transport.'
 
   s.description      = <<-DESC
@@ -20,7 +20,7 @@ Shared library for iOS SDK data transport needs.
   s.tvos.deployment_target = '10.0'
   s.watchos.deployment_target = '6.0'
 
-  # To develop or run the tests, >= 1.8.0.beta.1 must be installed.
+  # To develop or run the tests, >= 1.8.0 must be installed.
   s.cocoapods_version = '>= 1.4.0'
 
   s.static_framework = true
@@ -29,6 +29,9 @@ Shared library for iOS SDK data transport needs.
   s.source_files = 'GoogleDataTransport/GDTCORLibrary/**/*'
   s.public_header_files = 'GoogleDataTransport/GDTCORLibrary/Public/*.h'
   s.private_header_files = 'GoogleDataTransport/GDTCORLibrary/Private/*.h'
+  s.ios.frameworks = 'SystemConfiguration', 'CoreTelephony'
+  s.osx.frameworks = 'SystemConfiguration', 'CoreTelephony'
+  s.tvos.frameworks = 'SystemConfiguration'
 
   header_search_paths = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/GoogleDataTransport/"'
