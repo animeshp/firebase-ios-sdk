@@ -35,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		250551B62525125200534F34 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		2544AF6A2230656D00C5B420 /* CardMessageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardMessageViewController.swift; sourceTree = "<group>"; };
 		25574C3222795A4C0083735E /* InAppMessagingDisplayCardViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMessagingDisplayCardViewUITests.swift; sourceTree = "<group>"; };
 		6853342ED1A2287D19D7D0C1 /* Pods_FiamDisplaySwiftExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FiamDisplaySwiftExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +90,7 @@
 		AD7200B32124D19200AFD5F3 /* FiamDisplaySwiftExample */ = {
 			isa = PBXGroup;
 			children = (
+				250551B62525125200534F34 /* BridgingHeader.h */,
 				AD7200CB2124E2A800AFD5F3 /* CommonMessageTestVC.swift */,
 				AD7200C62124E24300AFD5F3 /* BannerMessageViewController.swift */,
 				AD7200C52124E24200AFD5F3 /* ImageOnlyMessageViewController.swift */,
@@ -362,10 +364,14 @@
 /* Begin XCBuildConfiguration section */
 		AD7200C12124D19400AFD5F3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 97551028A4E147C7EB5C3EF1 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */;
+			baseConfigurationReference = 86037DF9082A9870585ADB56 /* Pods-FiamDisplaySwiftExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					../../../../,
+					$inherited,
+				);
 				INFOPLIST_FILE = FiamDisplaySwiftExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -374,7 +380,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.experimental1.dev.FiamDisplaySwiftExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../../../FirebaseInAppMessaging/Sources/DefaultUI/FirebaseInAppMessagingDisplay.h;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../../../FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/FiamDisplaySwiftExample/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -383,10 +389,14 @@
 		};
 		AD7200C22124D19400AFD5F3 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AC2735A63E94A5295CDFA1A5 /* Pods-FiamDisplaySwiftExample.release.xcconfig */;
+			baseConfigurationReference = 6CCC7B0E5081A2848C82EA49 /* Pods-FiamDisplaySwiftExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					../../../../,
+					$inherited,
+				);
 				INFOPLIST_FILE = FiamDisplaySwiftExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -395,7 +405,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.experimental1.dev.FiamDisplaySwiftExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;
-				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../../../FirebaseInAppMessaging/Sources/DefaultUI/FirebaseInAppMessagingDisplay.h;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = ../../../../FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/FiamDisplaySwiftExample/BridgingHeader.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

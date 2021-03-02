@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import "FirebaseDynamicLinks/Sources/Utilities/FDLUtilities.h"
 
 #import <UIKit/UIDevice.h>
@@ -198,7 +201,7 @@ NSString *FIRDLDeviceTimezone() {
   return timeZoneName;
 }
 
-BOOL FIRDLIsURLForWhiteListedCustomDomain(NSURL *_Nullable URL) {
+BOOL FIRDLIsURLForAllowedCustomDomain(NSURL *_Nullable URL) {
   BOOL customDomainMatchFound = false;
   for (NSURL *allowedCustomDomain in FIRDLCustomDomains) {
     // All custom domain host names should match at a minimum.
@@ -242,7 +245,7 @@ BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
       [URL.host hasSuffix:@".app.goo.gl"] || [URL.host hasSuffix:@".page.link"];
 
   // Handle universal links for custom domains.
-  BOOL isDDLWithCustomDomain = FIRDLIsURLForWhiteListedCustomDomain(URL);
+  BOOL isDDLWithCustomDomain = FIRDLIsURLForAllowedCustomDomain(URL);
 
   return isDDLWithAppcodeInPath || isDDLWithSubdomain || isDDLWithCustomDomain;
 }
@@ -253,7 +256,7 @@ BOOL FIRDLMatchesShortLinkFormat(NSURL *URL) {
   BOOL matchesRegularExpression =
       ([URL.path rangeOfString:@"/[^/]+" options:NSRegularExpressionSearch].location != NSNotFound);
   // Must be able to parse (also checks if the URL conforms to *.app.goo.gl/* or goo.gl/app/*)
-  BOOL canParse = FIRDLCanParseUniversalLinkURL(URL) | FIRDLIsURLForWhiteListedCustomDomain(URL);
+  BOOL canParse = FIRDLCanParseUniversalLinkURL(URL) | FIRDLIsURLForAllowedCustomDomain(URL);
   ;
   // Path cannot be prefixed with /link/dismiss
   BOOL isDismiss = [[URL.path lowercaseString] hasPrefix:@"/link/dismiss"];
@@ -295,3 +298,5 @@ void FIRDLAddToAllowListForCustomDomainsArray(NSArray *_Nonnull customDomains) {
 }
 
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS

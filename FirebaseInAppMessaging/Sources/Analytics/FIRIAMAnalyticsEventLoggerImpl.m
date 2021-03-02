@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRIAMAnalyticsEventLoggerImpl.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS || TARGET_OS_TV
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogger.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h"
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutLogger.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 typedef void (^FIRAUserPropertiesCallback)(NSDictionary *userProperties);
@@ -118,9 +121,11 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
                               name:kFAEventNameForAction
                         parameters:params];
   }
+}
 
-  // set a special user property so that conversion events can be queried based on that
-  // for reporting purpose
+- (void)logConversionTrackingEventForCampaignID:(NSString *)campaignID {
+  // Set a special user property so that conversion events can be queried based on that
+  // for reporting purposes.
   NSString *conversionTrackingUserPropertyValue =
       [NSString stringWithFormat:@"%@%@", kFAUserPropertyPrefixForFIAM, campaignID];
 
@@ -168,3 +173,5 @@ static NSString *const kFIAMUserDefaualtsKeyForRemoveUserPropertyTimeInSeconds =
                                      completion:completion];
 }
 @end
+
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

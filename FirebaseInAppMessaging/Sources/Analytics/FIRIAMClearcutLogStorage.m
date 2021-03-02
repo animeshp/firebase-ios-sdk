@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 #import <UIKit/UIKit.h>
 
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMClearcutLogStorage.h"
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutLogStorage.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @implementation FIRIAMClearcutLogRecord
 static NSString *const kEventTimestampKey = @"event_ts_seconds";
@@ -93,7 +96,7 @@ static NSString *const kEventExtensionJson = @"extension_js";
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
       [[NSNotificationCenter defaultCenter] addObserver:self
                                                selector:@selector(appWillBecomeInactive:)
                                                    name:UISceneWillDeactivateNotification
@@ -163,7 +166,10 @@ static NSString *const kEventExtensionJson = @"extension_js";
   NSString *filePath = cacheFilePath == nil ? [self.class determineCacheFilePath] : cacheFilePath;
 
   NSTimeInterval start = [self.timeFetcher currentTimestampInSeconds];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   id fetchedClearcutRetryRecords = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
+#pragma clang diagnostic pop
   if (fetchedClearcutRetryRecords) {
     @synchronized(self) {
       self.records = (NSMutableArray<FIRIAMClearcutLogRecord *> *)fetchedClearcutRetryRecords;
@@ -177,7 +183,10 @@ static NSString *const kEventExtensionJson = @"extension_js";
 - (BOOL)saveIntoCacheWithPath:(NSString *)cacheFilePath {
   NSString *filePath = cacheFilePath == nil ? [self.class determineCacheFilePath] : cacheFilePath;
   @synchronized(self) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     BOOL saveResult = [NSKeyedArchiver archiveRootObject:self.records toFile:filePath];
+#pragma clang diagnostic pop
     FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM230003",
                 @"Saving %d clearcut log records into file is %@", (int)self.records.count,
                 saveResult ? @"successful" : @"failure");
@@ -186,3 +195,5 @@ static NSString *const kEventExtensionJson = @"extension_js";
   }
 }
 @end
+
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

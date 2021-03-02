@@ -1,3 +1,23 @@
+# v7.7.0
+- [fixed] Fix variable length array diagnostics warning (#7460).
+# v7.5.1
+- [changed] Optimize `FIRDatabaseQuery#getDataWithCompletionBlock` when in-memory active listener cache exists (#7312).
+- [fixed] Fixed an issue with `FIRDatabaseQuery#{queryStartingAfterValue,queryEndingBeforeValue} when used in `queryOrderedByKey` queries (#7403).
+
+# v7.5.0
+- [added] Implmement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.
+- [added] Added `DatabaseQuery#getData` which returns data from the server when cache is stale (#7110).
+
+# v7.2.0
+- [added] Made emulator connection API consistent between Auth, Database, Firestore, and Functions (#5916).
+
+# v7.0.0
+- [fixed] Disabled a deprecation warning. (#6502)
+
+# v6.6.0
+- [feature] The SDK can now infer a default database URL if none is provided in
+  the config.
+
 # v6.4.0
 - [changed] Functionally neutral source reorganization. (#5861)
 

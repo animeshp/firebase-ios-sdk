@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseAuth/Sources/Public/FIRAuthUIDelegate.h"
+#import "OCMock.h"
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
@@ -97,17 +101,18 @@ static NSTimeInterval kExpectationTimeout = 2;
         [invocation getArgument:&unretainedArgument atIndex:2];
 
         id presentViewController = unretainedArgument;
-        if (@available(iOS 9.0, *)) {  // SFSafariViewController is available
-          SFSafariViewController *viewController = presentViewController;
-          XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
-          XCTAssertEqual(viewController.delegate, presenter);
-        } else {
-          UINavigationController *navigationController = presentViewController;
-          XCTAssertTrue([navigationController isKindOfClass:[UINavigationController class]]);
-          FIRAuthWebViewController *webViewController =
-              navigationController.viewControllers.firstObject;
-          XCTAssertTrue([webViewController isKindOfClass:[FIRAuthWebViewController class]]);
-        }
+#if TARGET_OS_MACCATALYST
+        // SFSafariViewController is not available
+        UINavigationController *navigationController = presentViewController;
+        XCTAssertTrue([navigationController isKindOfClass:[UINavigationController class]]);
+        FIRAuthWebViewController *webViewController =
+            navigationController.viewControllers.firstObject;
+        XCTAssertTrue([webViewController isKindOfClass:[FIRAuthWebViewController class]]);
+#else
+        SFSafariViewController *viewController = presentViewController;
+        XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
+        XCTAssertEqual(viewController.delegate, presenter);
+#endif
         [UIPresentationExpectation fulfill];
       });
 
@@ -140,3 +145,5 @@ static NSTimeInterval kExpectationTimeout = 2;
 }
 
 @end
+
+#endif

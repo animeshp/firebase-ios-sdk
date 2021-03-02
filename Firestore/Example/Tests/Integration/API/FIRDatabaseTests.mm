@@ -1441,6 +1441,26 @@ using firebase::firestore::util::TimerId;
   XCTAssertTrue(firestore.wrapped->client()->is_terminated());
 }
 
+// Ensures b/172958106 doesn't regress.
+- (void)testDeleteAppWorksWhenLastReferenceToFirestoreIsInListener {
+  FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+
+  FIRDocumentReference *doc = [firestore documentWithPath:@"abc/123"];
+  // Make sure there is a listener.
+  [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *){
+  }];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"App is deleted"];
+  [app deleteApp:^(BOOL) {
+    [expectation fulfill];
+  }];
+  // Let go of the last app reference.
+  app = nil;
+
+  [self awaitExpectations];
+}
+
 - (void)testTerminateCanBeCalledMultipleTimes {
   FIRApp *app = testutil::AppForUnitTesting(util::MakeString([FSTIntegrationTestCase projectID]));
   FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
@@ -1590,6 +1610,30 @@ using firebase::firestore::util::TimerId;
 
   [self awaitExpectation:removed];
   XCTAssertEqualObjects(steps, @"12");
+}
+
+- (void)testListenerCallbacksHappenOnMainThread {
+  // Verify that callbacks occur on the main thread if settings.dispatchQueue is not specified.
+  XCTestExpectation *invoked = [self expectationWithDescription:@"listener invoked"];
+  invoked.assertForOverFulfill = false;
+
+  FIRDocumentReference *doc = [self documentRef];
+  [self writeDocumentRef:doc data:@{@"foo" : @"bar"}];
+
+  __block bool callbackThreadIsMainThread;
+  __block NSString *callbackThreadDescription;
+
+  [doc addSnapshotListener:^(FIRDocumentSnapshot *, NSError *) {
+    callbackThreadIsMainThread = NSThread.isMainThread;
+    callbackThreadDescription = [NSString stringWithFormat:@"%@", NSThread.currentThread];
+    [invoked fulfill];
+  }];
+
+  [self awaitExpectation:invoked];
+  XCTAssertTrue(callbackThreadIsMainThread,
+                @"The listener callback was expected to occur on the main thread, but instead it "
+                @"occurred on the thread %@",
+                callbackThreadDescription);
 }
 
 - (void)testWaitForPendingWritesCompletes {

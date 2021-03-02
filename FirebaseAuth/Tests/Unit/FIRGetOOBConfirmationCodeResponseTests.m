@@ -15,8 +15,9 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseAuth/Sources/Public/FIRActionCodeSettings.h"
-#import "FirebaseAuth/Sources/Public/FIRAuthErrors.h"
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRActionCodeSettings.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
@@ -89,7 +90,7 @@ static NSString *const kMissingAndroidPackageNameErrorMessage = @"MISSING_ANDROI
 
 /** @var kUnauthorizedDomainErrorMessage
     @brief This is the error message the server will respond with if the domain of the continue URL
-        specified is not whitelisted in the firebase console.
+        specified is not allowlisted in the Firebase console.
  */
 static NSString *const kUnauthorizedDomainErrorMessage = @"UNAUTHORIZED_DOMAIN";
 

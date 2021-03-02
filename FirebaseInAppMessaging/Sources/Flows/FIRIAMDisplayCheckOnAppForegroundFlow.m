@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS || TARGET_OS_TV
+
 #import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
 
-#import "FIRCore+InAppMessaging.h"
-#import "FIRIAMDisplayCheckOnAppForegroundFlow.h"
-#import "FIRIAMDisplayExecutor.h"
+#import "FirebaseInAppMessaging/Sources/FIRCore+InAppMessaging.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAppForegroundFlow.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayExecutor.h"
 
 @implementation FIRIAMDisplayCheckOnAppForegroundFlow
 
@@ -31,7 +34,7 @@
              name:UIApplicationWillEnterForegroundNotification
            object:nil];
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-  if (@available(iOS 13.0, *)) {
+  if (@available(iOS 13.0, tvOS 13.0, *)) {
     [[NSNotificationCenter defaultCenter]
         addObserver:self
            selector:@selector(checkAndDisplayNextAppForegroundMessageFromForeground:)
@@ -63,3 +66,5 @@
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 @end
+
+#endif  // TARGET_OS_IOS || TARGET_OS_TV

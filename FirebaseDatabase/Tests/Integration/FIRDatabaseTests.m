@@ -20,8 +20,8 @@
 
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseReference_Private.h"
 #import "FirebaseDatabase/Sources/FIRDatabaseConfig_Private.h"
-#import "FirebaseDatabase/Sources/Public/FIRDatabase.h"
-#import "FirebaseDatabase/Sources/Public/FIRDatabaseReference.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabase.h"
+#import "FirebaseDatabase/Sources/Public/FirebaseDatabase/FIRDatabaseReference.h"
 #import "FirebaseDatabase/Tests/Helpers/FIRFakeApp.h"
 #import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestBase.h"
@@ -37,10 +37,8 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 @implementation FIRDatabaseTests
 
 - (void)testFIRDatabaseForNilApp {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertThrowsSpecificNamed([FIRDatabase databaseForApp:nil], NSException, @"InvalidFIRApp");
-#pragma clang diagnostic pop
+  XCTAssertThrowsSpecificNamed([FIRDatabase databaseForApp:(FIRApp * _Nonnull) nil], NSException,
+                               @"InvalidFIRApp");
 }
 
 - (void)testDatabaseForApp {
@@ -49,7 +47,6 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 }
 
 - (void)testDatabaseForAppWithInvalidURLs {
-  XCTAssertThrows([self databaseForURL:nil]);
   XCTAssertThrows([self databaseForURL:@"not-a-url"]);
   XCTAssertThrows([self databaseForURL:@"http://x.example.com/paths/are/bad"]);
 }
@@ -75,6 +72,13 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
   XCTAssertEqualObjects(@"https://foo.bar.com", [database reference].URL);
 }
 
+- (void)testDatabaseForAppWithProjectId {
+  id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithURL" URL:nil];
+  FIRDatabase *database = [FIRDatabase databaseForApp:app];
+  XCTAssertEqualObjects(@"https://fake-project-id-default-rtdb.firebaseio.com",
+                        [database reference].URL);
+}
+
 - (void)testDifferentInstanceForAppWithURL {
   id app = [[FIRFakeApp alloc] initWithName:@"testDifferentInstanceForAppWithURL"
                                         URL:kFirebaseTestAltNamespace];
@@ -88,10 +92,7 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
 - (void)testDatabaseForAppWithInvalidCustomURLs {
   id app = [[FIRFakeApp alloc] initWithName:@"testDatabaseForAppWithInvalidCustomURLs"
                                         URL:kFirebaseTestAltNamespace];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertThrows([FIRDatabase databaseForApp:app URL:nil]);
-#pragma clang diagnostic pop
+  XCTAssertThrows([FIRDatabase databaseForApp:app URL:(NSString * _Nonnull) nil]);
   XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"not-a-url"]);
   XCTAssertThrows([FIRDatabase databaseForApp:app URL:@"http://x.fblocal.com:9000/paths/are/bad"]);
 }
@@ -461,6 +462,65 @@ static NSString *kFirebaseTestAltNamespace = @"https://foobar.firebaseio.com";
                                                    }];
   WAIT_FOR(done);
   [database goOffline];
+}
+
+- (void)testSetEmulatorSettingsCreatesEmulatedReferences {
+  id app = [[FIRFakeApp alloc] initWithName:@"testSetEmulatorSettingsCreatesEmulatedReferences"
+                                        URL:self.databaseURL];
+  FIRDatabase *database = [FIRDatabase databaseForApp:app];
+
+  [database useEmulatorWithHost:@"localhost" port:1111];
+  NSString *concatenatedHost = @"localhost:1111";
+
+  FIRDatabaseReference *reference = [database reference];
+
+  NSString *referenceURLString = reference.URL;
+
+  XCTAssert([referenceURLString containsString:concatenatedHost]);
+}
+
+- (void)testSetEmulatorSettingsThrowsAfterRepoInit {
+  id app = [[FIRFakeApp alloc] initWithName:@"testSetEmulatorSettingsThrowsAfterRepoInit"
+                                        URL:self.databaseURL];
+  FIRDatabase *database = [FIRDatabase databaseForApp:app];
+
+  [database reference];  // initialize database repo
+
+  // Emulator can't be set after initialization of the database's repo.
+  XCTAssertThrows([database useEmulatorWithHost:@"a" port:1]);
+}
+
+- (void)testEmulatedDatabaseValidatesOnlyNonCustomURLs {
+  // Set a non-custom databaseURL
+  NSString *databaseURL = @"https://test.example.com";
+  id app = [[FIRFakeApp alloc] initWithName:@"testEmulatedDatabaseValidatesNonCustomURLs0"
+                                        URL:databaseURL];
+  FIRDatabase *database = [FIRDatabase databaseForApp:app];
+
+  // Reference should be retrievable without an exception being raised
+  NSString *referenceURLString = [databaseURL stringByAppendingString:@"/path"];
+  FIRDatabaseReference *reference = [database referenceFromURL:referenceURLString];
+  XCTAssertNotNil(reference);
+
+  app = [[FIRFakeApp alloc] initWithName:@"testEmulatedDatabaseValidatesNonCustomURLs1"
+                                     URL:databaseURL];
+  database = [FIRDatabase databaseForApp:app];
+  [database useEmulatorWithHost:@"localhost" port:1111];
+
+  // Expect production url creates a valid (emulated) reference.
+  reference = [database referenceFromURL:referenceURLString];
+  XCTAssertNotNil(reference);
+  XCTAssert([reference.URL containsString:@"localhost:1111"]);
+
+  // Test emulated url
+  referenceURLString = @"http://localhost:1111/path";
+  reference = [database referenceFromURL:referenceURLString];
+  XCTAssertNotNil(reference);
+  XCTAssert([reference.URL containsString:@"localhost:1111"]);
+
+  // Test non-custom url with different host throws exception
+  referenceURLString = @"https://test.firebaseio.com/path";
+  XCTAssertThrows([database referenceFromURL:referenceURLString]);
 }
 
 - (FIRDatabase *)defaultDatabase {

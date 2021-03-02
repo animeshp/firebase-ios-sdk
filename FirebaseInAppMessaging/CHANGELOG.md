@@ -1,4 +1,25 @@
-# 2020-07-06 -- v0.22.0
+# 2021-2 -- v.7.7.0
+- [fixed] Fixed accessibility experience for in-app messages (#7445).
+- [fixed] Fixed conversion tracking for in-app messages with a conversion event but not a button / action URL (#7306).
+
+# 2021-1 -- v7.5.0
+- [fixed] Fixed failed assertion causing app to crash during test on device flow (#7299).
+
+# 2020-12 -- v7.3.0
+- [fixed] Fixed default display bug in apps that don't use `UISceneDelegate` (#6803).
+
+# 2020-10 -- v7.0.0
+- [removed] Removed deprecated elements of in-app messaging API.
+
+# 2020-08 -- v0.24.0
+- [changed] Functionally neutral import and header refactor to enable Swift Package
+  Manager support.
+
+# 2020-07 -- v0.23.0
+- [fixed] Fixed an inaccurate doc comment in `InAppMessagingDisplay` (#5972).
+- [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#6013)
+
+# 2020-07 -- v0.22.0
 - [changed] Functionally neutral updated import references for dependencies. (#5902)
 - [changed] Updated In-App Messaging to consume the Protobuf-less AB Testing SDK (#5890).
 

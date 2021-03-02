@@ -29,6 +29,7 @@ NO_HEADING = 'PRODUCT HAS NO HEADING'
 
 PRODUCTS = {
     'FirebaseABTesting/CHANGELOG.md': '{{ab_testing}}',
+    'FirebaseAppDistribution/CHANGELOG.md': 'App Distribution',
     'FirebaseAuth/CHANGELOG.md': '{{auth}}',
     'FirebaseCore/CHANGELOG.md': NO_HEADING,
     'Crashlytics/CHANGELOG.md': '{{crashlytics}}',
@@ -42,8 +43,7 @@ PRODUCTS = {
     'Firestore/CHANGELOG.md': '{{firestore}}',
     'Functions/CHANGELOG.md': '{{cloud_functions}}',
     'FirebaseRemoteConfig/CHANGELOG.md': '{{remote_config}}',
-
-    # 'GoogleDataTransport/CHANGELOG.md': '?',
+    'FirebasePerformance/CHANGELOG.md': '{{perfmon}}',
 }
 
 

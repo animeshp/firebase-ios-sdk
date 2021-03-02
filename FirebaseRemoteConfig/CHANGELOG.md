@@ -1,3 +1,35 @@
+# v7.7.0
+- [added] Added community support for watchOS. (#7481)
+
+# v7.6.0
+- [fixed] Fixed build warnings introduced with Xcode 12.5. (#7432)
+
+# v7.5.0
+- [fixed] Fixed bug that was incorrectly flagging ABT experiment payloads as invalid. (#7184)
+- [changed] Standardize support for Firebase products that integrate with Remote Config. (#7094)
+
+# v7.1.0
+- [changed] Add support for other Firebase products to integrate with Remote Config. (#6692)
+
+# v7.0.0
+- [changed] Updated `lastFetchTime` field to readonly. (#6567)
+- [changed] Functionally neutral change to stop using a deprecated method in the AB Testing API. (#6543)
+- [fixed] Updated `numberValue` to be nonnull to align with current behavior. (#6623)
+- [removed] Removed deprecated APIs `isDeveloperModeEnabled`, `initWithDeveloperModeEnabled:developerModeEnabled`, `activateWithCompletionHandler:completionHandler`, `activateFetched`, `configValueForKey:namespace`, `configValueForKey:namespace:source`, `allKeysFromSource:namespace`, `keysWithPrefix:namespace`, `setDefaults:namespace`, `setDefaultsFromPlistFileName:namespace`, `defaultValueForKey:namespace`. (#6637)
+- [fixed] Completion handler for `fetchAndActivateWithCompletionHandler` is now run on the main thread. (#5897)
+- [fixed] Fixed database creation on tvOS. (#6612)
+- [changed] Updated public API documentation to no longer reference removed APIs. (#6641)
+- [fixed] Updated `activateWithCompletion:` to use completion handler for experiment updates. (#3687)
+
+# v4.9.1
+- [fixed] Fix an `attempt to insert nil object` crash in `fetchWithExpirationDuration:`. (#6522)
+
+# v4.9.0
+- [fixed] Fixed `FirebaseApp.delete()` related crash in `RC Config Fetch`. (#6123)
+
+# v4.8.0
+- [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#6013)
+
 # v4.7.0
 - [changed] Functionally neutral updated import references for dependencies. (#5824)
 - [changed] Updated Remote Config to consume the Protobuf-less AB Testing SDK (#5890).

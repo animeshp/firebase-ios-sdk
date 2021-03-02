@@ -15,7 +15,8 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseAuth/Sources/Public/FIRAuthErrors.h"
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetProjectConfigRequest.h"
@@ -34,12 +35,12 @@ static NSString *const kTestAPIKey = @"APIKey";
 static NSString *const kTestProjectID = @"21141651616";
 
 /** @var kTestDomain1
-    @brief Fake whitelisted domain used for testing.
+    @brief Fake allowlisted domain used for testing.
  */
 static NSString *const kTestDomain1 = @"localhost";
 
 /** @var kTestDomain2
-    @brief Fake whitelisted domain used for testing.
+    @brief Fake allowlisted domain used for testing.
  */
 static NSString *const kTestDomain2 = @"example.firebaseapp.com";
 

@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRIAMBaseRenderingViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
-#import "FIRIAMTimeFetcher.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMBaseRenderingViewController.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMBaseRenderingViewController ()
 // For fiam messages, it's required to be kMinValidImpressionTime to
@@ -53,7 +56,7 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
                                                name:UIApplicationDidBecomeActiveNotification
                                              object:nil];
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-  if (@available(iOS 13.0, *)) {
+  if (@available(iOS 13.0, tvOS 13.0, *)) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appWillBecomeInactive:)
                                                  name:UISceneWillDeactivateNotification
@@ -183,3 +186,5 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
 }
 
 @end
+
+#endif  // TARGET_OS_IOS

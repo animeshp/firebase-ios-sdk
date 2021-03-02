@@ -16,14 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class FIRComponentContainer;
 @class FIRFakeOptions;
 
 @interface FIRFakeApp : NSObject
 
-- (instancetype)initWithName:(NSString *)name URL:(NSString *)url;
+- (instancetype)initWithName:(NSString *)name URL:(NSString *_Nullable)url;
 
 @property(nonatomic, readonly) FIRFakeOptions *options;
 @property(nonatomic, copy, readonly) NSString *name;
 @property(nonatomic, readonly) FIRComponentContainer *container;
 @end
+
+NS_ASSUME_NONNULL_END

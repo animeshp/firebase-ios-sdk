@@ -1,3 +1,12 @@
+# v7.7.0
+- [added] Added community support for watchOS. ABTesting can now build on watchOS, but some functions might not work yet. (#7481)
+
+# v7.0.0
+- [removed] Removed `FIRExperimentController.updateExperiments(serviceOrigin:events:policy:lastStartTime:payloads:)`, which was deprecated. (#6543)
+
+# v4.1.0
+- [changed] Functionally neutral source reorganization for preliminary Swift Package Manager support. (#6016)
+
 # v4.0.0
 - [changed] Removed Protobuf dependency (#5890).
 

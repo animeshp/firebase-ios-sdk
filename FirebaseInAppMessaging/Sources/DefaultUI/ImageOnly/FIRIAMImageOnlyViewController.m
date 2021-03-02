@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRIAMImageOnlyViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/ImageOnly/FIRIAMImageOnlyViewController.h"
 
 @interface FIRIAMImageOnlyViewController ()
 
@@ -86,11 +89,17 @@
   [super viewDidLoad];
   [self.view setBackgroundColor:[UIColor.grayColor colorWithAlphaComponent:0.5]];
 
+  // Close button should be announced last for better VoiceOver experience.
+  self.view.accessibilityElements = @[ self.imageView, self.closeButton ];
+
   if (self.imageOnlyMessage.imageData) {
     UIImage *image = [UIImage imageWithData:self.imageOnlyMessage.imageData.imageRawData];
     self.imageOriginalSize = image.size;
     [self.imageView setImage:image];
     self.imageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.imageView.accessibilityLabel = self.inAppMessage.campaignInfo.campaignName;
+  } else {
+    self.imageView.isAccessibilityElement = NO;
   }
 
   [self setupRecognizers];
@@ -173,6 +182,13 @@
   }
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+  // Announce via VoiceOver that the image-only message has appeared. Highlight the image.
+  UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, self.imageView);
+}
+
 - (void)flashCloseButton:(UIButton *)closeButton {
   closeButton.alpha = 1.0f;
   [UIView animateWithDuration:2.0
@@ -188,3 +204,5 @@
                    }];
 }
 @end
+
+#endif  // TARGET_OS_IOS

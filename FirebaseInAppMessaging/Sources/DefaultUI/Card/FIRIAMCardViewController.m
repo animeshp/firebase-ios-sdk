@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRIAMCardViewController.h"
-#import "FIRCore+InAppMessagingDisplay.h"
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseInAppMessaging/Sources/DefaultUI/Card/FIRIAMCardViewController.h"
+#import "FirebaseInAppMessaging/Sources/DefaultUI/FIRCore+InAppMessagingDisplay.h"
 
 @interface FIRIAMCardViewController ()
 
@@ -108,6 +111,8 @@
   self.bodyTextView.text = self.cardDisplayMessage.body;
   self.bodyTextView.textColor = self.cardDisplayMessage.textColor;
 
+  self.imageView.accessibilityLabel = self.inAppMessage.campaignInfo.campaignName;
+
   [self.primaryActionButton setTitle:self.cardDisplayMessage.primaryActionButton.buttonText
                             forState:UIControlStateNormal];
   [self.primaryActionButton
@@ -145,4 +150,13 @@
   [self.textAreaScrollView setContentOffset:CGPointZero];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+  // Announce via VoiceOver that the card message has appeared. Highlight the title label.
+  UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, self.titleLabel);
+}
+
 @end
+
+#endif  // TARGET_OS_IOS

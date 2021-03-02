@@ -15,8 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRIAMClientInfoFetcher.h"
-#import "FIRIAMTimeFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClientInfoFetcher.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,5 +57,14 @@ typedef NS_ENUM(NSInteger, FIRIAMAnalyticsLogEventType) {
                 withCampaignName:(NSString *)campaignName
                    eventTimeInMs:(nullable NSNumber *)eventTimeInMs
                       completion:(void (^)(BOOL success))completion;
+
+@optional
+/**
+ * Adds an analytics log indicating that a campaign has been interacted with, and is therefore
+ * considered responsible for future conversion events as defined by the app developer during
+ * campaign creation. Only necessary if the implementing class talks to Firebase Analytics.
+ */
+- (void)logConversionTrackingEventForCampaignID:(NSString *)campaignID;
+
 @end
 NS_ASSUME_NONNULL_END

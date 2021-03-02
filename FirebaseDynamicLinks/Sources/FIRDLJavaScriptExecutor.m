@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <WebKit/WebKit.h>
 
 #import "FirebaseDynamicLinks/Sources/FIRDLJavaScriptExecutor.h"
@@ -23,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kJSMethodName = @"generateFingerprint";
 
 /** Creates and returns the FDL JS method name. */
-NSString *FIRDLTypeofFingerprintJSMethodNameString() {
+NSString *FIRDLTypeofFingerprintJSMethodNameString(void) {
   static NSString *methodName;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -33,7 +36,7 @@ NSString *FIRDLTypeofFingerprintJSMethodNameString() {
 }
 
 /** Creates and returns the FDL JS method definition. */
-NSString *GINFingerprintJSMethodString() {
+NSString *GINFingerprintJSMethodString(void) {
   static NSString *methodString;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -135,3 +138,5 @@ NSString *GINFingerprintJSMethodString() {
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif  // TARGET_OS_IOS
